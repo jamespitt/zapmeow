@@ -30,13 +30,16 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
-	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-sqlite3 v1.14.24 // indirect
+	github.com/mdp/qrterminal/v3 v3.2.1 // indirect
 	github.com/onsi/ginkgo v1.16.5 // indirect
 	github.com/onsi/gomega v1.27.10 // indirect
 	github.com/rs/zerolog v1.33.0 // indirect
 	go.mau.fi/util v0.8.4 // indirect
+	golang.org/x/term v0.29.0 // indirect
 	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
+	rsc.io/qr v0.2.0 // indirect
 )
 
 require (

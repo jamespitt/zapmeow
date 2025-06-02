@@ -7,6 +7,7 @@ import (
 	"zapmeow/pkg/zapmeow"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mdp/qrterminal/v3"
 )
 
 type getQrCodeResponse struct {
@@ -63,6 +64,8 @@ func (h *getQrCodeHandler) Handler(c *gin.Context) {
 		response.ErrorResponse(c, http.StatusInternalServerError, "Account not found")
 		return
 	}
+
+	qrterminal.Generate(account.QrCode, qrterminal.L, c.Writer)
 
 	response.Response(c, http.StatusOK, getQrCodeResponse{
 		QrCode: account.QrCode,
