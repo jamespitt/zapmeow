@@ -3,7 +3,9 @@ package config
 import (
 	"log"
 	"os"
+	"os/user"
 	"strconv"
+	"strings"
 )
 
 type Environment = uint
@@ -36,6 +38,16 @@ func Load() Config {
 	historySyncEnv := os.Getenv("HISTORY_SYNC")
 	maxMessageSyncEnv := os.Getenv("MAX_MESSAGE_SYNC")
 	environment := getEnvironment()
+
+	usr, err := user.Current()
+	if err != nil {
+		log.Fatalf("Failed to get current user: %v", err)
+	}
+	homeDir := usr.HomeDir
+
+	// Expand tilde for paths
+	storagePathEnv = strings.Replace(storagePathEnv, "~", homeDir, 1)
+	databaseURLEnv = strings.Replace(databaseURLEnv, "~", homeDir, 1)
 
 	maxMessageSync, err := strconv.Atoi(maxMessageSyncEnv)
 	if err != nil {
