@@ -2,8 +2,10 @@ package handler
 
 import (
 	"net/http"
+	"os"
 	"zapmeow/api/response"
 	"zapmeow/api/service"
+	"zapmeow/pkg/logger"
 	"zapmeow/pkg/zapmeow"
 
 	"github.com/gin-gonic/gin"
@@ -65,7 +67,14 @@ func (h *getQrCodeHandler) Handler(c *gin.Context) {
 		return
 	}
 
-	qrterminal.Generate(account.QrCode, qrterminal.L, c.Writer)
+	// Log the QR code to the terminal
+	logger.Info("Generating QR Code for instance: ", instanceID)
+	qrterminal.GenerateWithConfig(account.QrCode, qrterminal.Config{
+		Level:     qrterminal.L,
+		Writer:    os.Stdout,
+		BlackChar: qrterminal.BLACK,
+		WhiteChar: qrterminal.WHITE,
+	})
 
 	response.Response(c, http.StatusOK, getQrCodeResponse{
 		QrCode: account.QrCode,

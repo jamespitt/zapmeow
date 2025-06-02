@@ -31,6 +31,7 @@ func main() {
 	godotenv.Load()
 
 	cfg := config.Load()
+
 	if cfg.Environment == config.Production {
 		gin.SetMode(gin.ReleaseMode)
 	}
