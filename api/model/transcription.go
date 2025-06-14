@@ -6,7 +6,7 @@ import (
 
 // Transcription represents a transcription of an audio message.
 type Transcription struct {
-	GORMModel
+	gorm.Model
 	MessageID string `gorm:"uniqueIndex"` // Link to the Message table
 	Text      string
 }
