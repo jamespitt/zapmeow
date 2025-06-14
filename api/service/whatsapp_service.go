@@ -1,6 +1,7 @@
 package service
 
 import (
+	"os/exec"
 	"zapmeow/api/helper"
 	"zapmeow/api/model"
 	"zapmeow/api/queue"
@@ -341,17 +342,28 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 		} else if existingTranscription != nil {
 			logger.Info("Transcription already exists for message ID: ", message.MessageID)
 		} else {
-			// TODO: Call your transcription service here using message.MediaPath
-			// and assign the result to transcribedText.
-			transcribedText := "" // Placeholder - replace with actual transcription result
-
-			transcription := &model.Transcription{
-				MessageID: message.MessageID,
-				Text:      transcribedText,
-			}
-			err = w.transcriptionService.CreateTranscription(transcription)
+			// Execute the transcription script
+			cmd := exec.Command("./transcribe.sh", message.MediaPath)
+			logger.Info("Executing transcription script: ", cmd.String())
+			output, err := cmd.Output()
 			if err != nil {
-				logger.Error("Failed to save transcription to database. ", err)
+				logger.Error("Failed to execute transcription script: ", err)
+				// Log stderr if available
+				if exitErr, ok := err.(*exec.ExitError); ok {
+					logger.Error("Transcription script stderr: ", string(exitErr.Stderr))
+				}
+			} else {
+				transcribedText := string(output)
+				logger.Info("Transcription result: ", transcribedText)
+
+				transcription := &model.Transcription{
+					MessageID: message.MessageID,
+					Text:      transcribedText,
+				}
+				err = w.transcriptionService.CreateTranscription(transcription)
+				if err != nil {
+					logger.Error("Failed to save transcription to database. ", err)
+				}
 			}
 		}
 	}

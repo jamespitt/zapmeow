@@ -11,28 +11,24 @@ type TranscriptionRepository interface {
 }
 
 type transcriptionRepository struct {
-	db database.Database
+	database database.Database
 }
 
-func NewTranscriptionRepository(db database.Database) *transcriptionRepository {
-	return &transcriptionRepository{
-		db: db,
-	}
+func NewTranscriptionRepository(database database.Database) *transcriptionRepository {
+	return &transcriptionRepository{database: database}
 }
 
-func (r *transcriptionRepository) CreateTranscription(transcription *model.Transcription) error {
-	return r.db.Client().Create(transcription).Error
+func (repo *transcriptionRepository) CreateTranscription(transcription *model.Transcription) error {
+	return repo.database.Client().Create(transcription).Error
 }
 
-func (r *transcriptionRepository) FindByMessageID(messageID string) (*model.Transcription, error) {
+func (repo *transcriptionRepository) FindByMessageID(messageID string) (*model.Transcription, error) {
 	var transcription model.Transcription
-	result := r.db.Client().Where("message_id = ?", messageID).First(&transcription)
-	if result.Error != nil {
-		if result.Error.Error() == "record not found" {
+	if result := repo.database.Client().Where("message_id = ?", messageID).First(&transcription); result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
 			return nil, nil // Return nil transcription and nil error if not found
 		}
 		return nil, result.Error // Return error if something else went wrong
 	}
 	return &transcription, nil
 }
-
