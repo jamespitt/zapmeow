@@ -334,17 +334,25 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 
 	// Check if the message is an audio message and if media was saved
 	if parsedEventMessage.MediaType != nil && parsedEventMessage.MediaType.String() == "audio" && message.MediaPath != "" {
-		// TODO: Call your transcription service here using message.MediaPath
-		// and assign the result to transcribedText.
-		transcribedText := "" // Placeholder - replace with actual transcription result
-
-		transcription := &model.Transcription{
-			MessageID: message.MessageID,
-			Text:      transcribedText,
-		}
-		err = w.transcriptionService.CreateTranscription(transcription)
+		// Check if transcription already exists for this message
+		existingTranscription, err := w.transcriptionService.FindByMessageID(message.MessageID)
 		if err != nil {
-			logger.Error("Failed to save transcription to database. ", err)
+			logger.Error("Failed to check for existing transcription. ", err)
+		} else if existingTranscription != nil {
+			logger.Info("Transcription already exists for message ID: ", message.MessageID)
+		} else {
+			// TODO: Call your transcription service here using message.MediaPath
+			// and assign the result to transcribedText.
+			transcribedText := "" // Placeholder - replace with actual transcription result
+
+			transcription := &model.Transcription{
+				MessageID: message.MessageID,
+				Text:      transcribedText,
+			}
+			err = w.transcriptionService.CreateTranscription(transcription)
+			if err != nil {
+				logger.Error("Failed to save transcription to database. ", err)
+			}
 		}
 	}
 

@@ -110,5 +110,12 @@
     "type": "user",
     "message": "can you put some error logging in place to find out what's going wrong",
     "timestamp": "2025-06-14T13:07:37.430Z"
+  },
+  {
+    "sessionId": 1749905923,
+    "messageId": 3,
+    "type": "user",
+    "message": "this is error now:\nJun 14 14:09:02 james-home main[739442]: 14:09:02.734 [Client/Send DEBUG] <receipt id=\"7085A3C1110C6B7C096D6EF801512CC6\" to=\"447906616842@s.whatsapp.net\" type=\"inactive\"/>\nJun 14 14:09:02 james-home main[739442]: time=\"2025-06-14T14:09:02+01:00\" level=error msg=\"Failed to save transcription to database. UNIQUE constraint failed: transcriptions.message_id\"\nJun 14 14:09:02 james-home main[739442]: time=\"2025-06-14T14:09:02+01:00\" level=error msg=\"Failed to send webhook request to http://localhost:3000/api/whatsapp/message. Request returned an unexpected status code\"\nJun 14 14:09:02 james-home main[739442]: 14:09:02.740 [Client/Send DEBUG] <receipt id=\"7085A3C1110C6B7C096D6EF801512CC6\" recipient=\"447906616842@s.whatsapp.net\" to=\"353870985961@s.whatsapp.net\" type=\"sender\"/>",
+    "timestamp": "2025-06-14T13:11:09.188Z"
   }
 ]
