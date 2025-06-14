@@ -21,7 +21,11 @@ func NewTranscriptionRepository(database database.Database) *transcriptionReposi
 }
 
 func (repo *transcriptionRepository) CreateTranscription(transcription *model.Transcription) error {
-	return repo.database.Client().Create(transcription).Error
+	err := repo.database.Client().Create(transcription).Error
+	if err != nil && err.Error() == "UNIQUE constraint failed: transcriptions.message_id" {
+		return nil // Ignore unique constraint errors
+	}
+	return err
 }
 
 func (repo *transcriptionRepository) FindByMessageID(messageID string) (*model.Transcription, error) {
