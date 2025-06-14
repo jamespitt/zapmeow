@@ -1,36 +1,6 @@
 package database
 
 import (
-	"zapmeow/pkg/logger"
-
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
-	gormLogger "gorm.io/gorm/logger"
-)
-
-type Database interface {
-	RunMigrate(dst ...interface{}) error
-	Client() *gorm.DB
-}
-
-type database struct {
-	client *gorm.DB
-}
-
-func NewDatabase(databasePath string) *database {
-	client, err := gorm.Open(sqlite.Open(databasePath), &gorm.Config{
-		Logger: gormLogger.Default.LogMode(gormLogger.Silent),
-	})
-	if err != nil {
-		logger.Fatal("Error creating gorm database. ", err)
-	}
-
-	return &database{
-		client: client,
-	}
-}
-
-import (
 	"zapmeow/api/model"
 	"zapmeow/pkg/logger"
 
@@ -71,10 +41,6 @@ func (d *database) RunMigrate(dst ...interface{}) error {
 	// Append any additional models passed in dst
 	modelsToMigrate = append(modelsToMigrate, dst...)
 	return d.client.AutoMigrate(modelsToMigrate...)
-}
-
-func (d *database) Client() *gorm.DB {
-	return d.client
 }
 
 func (d *database) Client() *gorm.DB {

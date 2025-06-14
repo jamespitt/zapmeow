@@ -5,7 +5,7 @@ import (
 )
 
 type Transcription struct {
-	GormModel
+	gorm.Model
 	MessageID string `gorm:"uniqueIndex"`
 	Text      string
 	Message   Message `gorm:"foreignKey:MessageID"`

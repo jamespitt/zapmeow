@@ -3,6 +3,8 @@ package repository
 import (
 	"zapmeow/api/model"
 	"zapmeow/pkg/database"
+
+	"gorm.io/gorm"
 )
 
 type TranscriptionRepository interface {
