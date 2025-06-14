@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 )
 
@@ -15,9 +16,9 @@ func Request(url string, data map[string]interface{}) error {
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
 	if err != nil {
+		// This error is for network issues, not bad status codes
 		return err
 	}
-	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -26,5 +27,11 @@ func Request(url string, data map[string]interface{}) error {
 	}
 
 	defer resp.Body.Close()
+
+	// Check for non-2xx status codes
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return fmt.Errorf("webhook request failed with status code: %d", resp.StatusCode)
+	}
+
 	return nil
 }

@@ -26,5 +26,54 @@
     "type": "user",
     "message": "can you please finish this work",
     "timestamp": "2025-06-14T09:17:14.507Z"
+  },
+  {
+    "sessionId": 1749900227,
+    "messageId": 0,
+    "type": "user",
+    "message": "OK - can you please update the code in /api - I think that it's not setup correctly. When I receive a media file or an audio file, it doesn't seem to have the right webhook in place and it's being saved. I am using the whatsmeow library.",
+    "timestamp": "2025-06-14T11:27:37.876Z"
+  },
+  {
+    "sessionId": 1749900227,
+    "messageId": 1,
+    "type": "user",
+    "message": "this is the library I'm using - can you read the online documentation? If so, can you save a copy to the folder",
+    "timestamp": "2025-06-14T11:32:56.564Z"
+  },
+  {
+    "sessionId": 1749900227,
+    "messageId": 2,
+    "type": "user",
+    "message": "I'm getting the error 'Failed to send webhook request. Request returned an unexpted status code'",
+    "timestamp": "2025-06-14T11:38:34.669Z"
+  },
+  {
+    "sessionId": 1749900227,
+    "messageId": 3,
+    "type": "user",
+    "message": "ok - please don't update any code in pkg - only update the code in ./api - is there a missing webhook for this?",
+    "timestamp": "2025-06-14T11:40:11.510Z"
+  },
+  {
+    "sessionId": 1749900227,
+    "messageId": 4,
+    "type": "user",
+    "message": "ok - thanks - can you please find out what is wrong with that WebhookURL and can you fix it to work with audio and media? Is it actually saving it now?",
+    "timestamp": "2025-06-14T11:42:42.984Z"
+  },
+  {
+    "sessionId": 1749900227,
+    "messageId": 5,
+    "type": "user",
+    "message": "ok - please make the change for the pkg/http/http.go again, and also improve the logging for the api/service/whatsapp_service.go so we can find out what's going wrong",
+    "timestamp": "2025-06-14T11:49:30.292Z"
+  },
+  {
+    "sessionId": 1749900227,
+    "messageId": 6,
+    "type": "user",
+    "message": "can you please reaply the changes to api/service/whatsapp_service.go",
+    "timestamp": "2025-06-14T11:57:30.212Z"
   }
 ]
