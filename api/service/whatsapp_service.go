@@ -20,6 +20,7 @@ type whatsAppService struct {
 	app            *zapmeow.ZapMeow
 	messageService MessageService
 	accountService AccountService
+	transcriptionService TranscriptionService
 	whatsApp       whatsapp.WhatsApp
 }
 
@@ -40,6 +41,7 @@ func NewWhatsAppService(
 	app *zapmeow.ZapMeow,
 	messageService MessageService,
 	accountService AccountService,
+	transcriptionService TranscriptionService,
 	whatsApp whatsapp.WhatsApp,
 ) *whatsAppService {
 	return &whatsAppService{
@@ -332,14 +334,6 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 
 	// Check if the message is an audio message and if media was saved
 	if parsedEventMessage.MediaType != nil && parsedEventMessage.MediaType.String() == "audio" && message.MediaPath != "" {
-		// TODO: Implement audio transcription here.
-		// You would read the audio file from message.MediaPath,
-		// send it to a transcription service (e.g., Gemini, another API),
-		// and get the transcribed text.
-
-		// Placeholder for transcription result
-		transcribedText := ""
-
 		// TODO: Save the transcription to the database.
 		// You would create a new Transcription model instance
 		// and save it using a TranscriptionRepository (which you would need to create).

@@ -89,5 +89,12 @@
     "type": "user",
     "message": "ok - the code isn't working at the moment - try `go build cmd/server/main.go` - can you please fix the problems",
     "timestamp": "2025-06-14T12:27:51.844Z"
+  },
+  {
+    "sessionId": 1749905923,
+    "messageId": 0,
+    "type": "user",
+    "message": "OK - can you help me fix this code. I'm part way through getting a transcription service in place, but it's not working yet. can you help me fix it. Start off by trying to build it - `go build cmd/server/main.go`",
+    "timestamp": "2025-06-14T12:59:58.942Z"
   }
 ]

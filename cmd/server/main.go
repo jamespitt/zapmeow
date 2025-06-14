@@ -75,6 +75,7 @@ func main() {
 	// service
 	messageService := service.NewMessageService(messageRepo)
 	accountService := service.NewAccountService(accountRepo, messageService)
+	transcriptionService := service.NewTranscriptionService(transcriptionRepo)
 	whatsAppService := service.NewWhatsAppService(
 		app,
 		messageService,
