@@ -334,19 +334,18 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 
 	// Check if the message is an audio message and if media was saved
 	if parsedEventMessage.MediaType != nil && parsedEventMessage.MediaType.String() == "audio" && message.MediaPath != "" {
-		// TODO: Save the transcription to the database.
-		// You would create a new Transcription model instance
-		// and save it using a TranscriptionRepository (which you would need to create).
-		/*
+		// TODO: Call your transcription service here using message.MediaPath
+		// and assign the result to transcribedText.
+		transcribedText := "" // Placeholder - replace with actual transcription result
+
 		transcription := &model.Transcription{
 			MessageID: message.MessageID,
 			Text:      transcribedText,
 		}
-		err = w.transcriptionService.CreateTranscription(transcription) // Assuming you have a transcription service
+		err = w.transcriptionService.CreateTranscription(transcription)
 		if err != nil {
 			logger.Error("Failed to save transcription to database. ", err)
 		}
-		*/
 	}
 
 	err = w.messageService.CreateMessage(&message)
@@ -362,6 +361,6 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 
 	err = http.Request(w.app.Config.WebhookURL, body)
 	if err != nil {
-		logger.Error("Failed to send webhook request. ", err)
+		logger.Error("Failed to send webhook request to ", w.app.Config.WebhookURL, ". ", err)
 	}
 }

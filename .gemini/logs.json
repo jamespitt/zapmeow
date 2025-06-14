@@ -96,5 +96,19 @@
     "type": "user",
     "message": "OK - can you help me fix this code. I'm part way through getting a transcription service in place, but it's not working yet. can you help me fix it. Start off by trying to build it - `go build cmd/server/main.go`",
     "timestamp": "2025-06-14T12:59:58.942Z"
+  },
+  {
+    "sessionId": 1749905923,
+    "messageId": 1,
+    "type": "user",
+    "message": "OK - thanks. I'm getting this error - Jun 14 14:05:39 james-home main[738908]: time=\"2025-06-14T14:05:39+01:00\" level=error msg=\"Failed to send webhook request. Request returned an unexpected status code\"",
+    "timestamp": "2025-06-14T13:06:12.278Z"
+  },
+  {
+    "sessionId": 1749905923,
+    "messageId": 2,
+    "type": "user",
+    "message": "can you put some error logging in place to find out what's going wrong",
+    "timestamp": "2025-06-14T13:07:37.430Z"
   }
 ]
