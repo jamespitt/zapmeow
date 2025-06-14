@@ -15,7 +15,7 @@ require (
 	go.mau.fi/whatsmeow v0.0.0-20250212143635-53482eea9bc9
 	google.golang.org/protobuf v1.36.5
 	gorm.io/driver/sqlite v1.5.5
-	gorm.io/gorm v1.25.9
+	gorm.io/gorm v1.30.0
 )
 
 require (
