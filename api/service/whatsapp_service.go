@@ -46,6 +46,7 @@ func NewWhatsAppService(
 		app:            app,
 		messageService: messageService,
 		accountService: accountService,
+		transcriptionService: transcriptionService,
 		whatsApp:       whatsApp,
 	}
 }
@@ -327,6 +328,31 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 
 		message.MediaType = parsedEventMessage.MediaType.String()
 		message.MediaPath = path
+	}
+
+	// Check if the message is an audio message and if media was saved
+	if parsedEventMessage.MediaType != nil && parsedEventMessage.MediaType.String() == "audio" && message.MediaPath != "" {
+		// TODO: Implement audio transcription here.
+		// You would read the audio file from message.MediaPath,
+		// send it to a transcription service (e.g., Gemini, another API),
+		// and get the transcribed text.
+
+		// Placeholder for transcription result
+		transcribedText := ""
+
+		// TODO: Save the transcription to the database.
+		// You would create a new Transcription model instance
+		// and save it using a TranscriptionRepository (which you would need to create).
+		/*
+		transcription := &model.Transcription{
+			MessageID: message.MessageID,
+			Text:      transcribedText,
+		}
+		err = w.transcriptionService.CreateTranscription(transcription) // Assuming you have a transcription service
+		if err != nil {
+			logger.Error("Failed to save transcription to database. ", err)
+		}
+		*/
 	}
 
 	err = w.messageService.CreateMessage(&message)

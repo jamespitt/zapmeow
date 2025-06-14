@@ -51,6 +51,7 @@ func main() {
 	err := database.RunMigrate(
 		&model.Account{},
 		&model.Message{},
+		&model.Transcription{},
 	)
 	if err != nil {
 		logger.Fatal("Error when running gorm automigrate. ", err)
@@ -69,6 +70,7 @@ func main() {
 	// repository
 	messageRepo := repository.NewMessageRepository(app.Database)
 	accountRepo := repository.NewAccountRepository(app.Database)
+	transcriptionRepo := repository.NewTranscriptionRepository(app.Database)
 
 	// service
 	messageService := service.NewMessageService(messageRepo)
@@ -77,6 +79,7 @@ func main() {
 		app,
 		messageService,
 		accountService,
+		transcriptionService,
 		whatsApp,
 	)
 

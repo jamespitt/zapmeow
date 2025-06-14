@@ -12,6 +12,44 @@ ZapMeow is a versatile API that allows developers to interact with WhatsApp usin
 -   **QR Code Generation**: Generate QR codes to initiate WhatsApp login.
 -   **Instance Status**: Retrieve the connection status of a specific instance of WhatsApp.
 
+### Project Structure
+
+The project is organized into the following main directories:
+
+-   `api/`: Contains the HTTP handlers, services, models, repositories, and helpers for the API.
+-   `cmd/`: Entry point for the application.
+-   `config/`: Handles application configuration loading.
+-   `docs/`: Contains Swagger documentation files.
+-   `pkg/`: Includes reusable packages for database, HTTP, logging, queue, and the whatsmeow library wrapper.
+-   `worker/`: Contains background workers, such as the history sync worker.
+
+### Key Components
+
+-   **Handlers**: Located in `api/handler`, these handle incoming HTTP requests and interact with services.
+-   **Services**: Located in `api/service`, these contain the core business logic and interact with repositories and the `pkg/whatsapp` wrapper.
+-   **Repositories**: Located in `api/repository`, these handle data persistence (e.g., accounts, messages).
+-   **Helpers**: Located in `api/helper`, these provide utility functions.
+-   **WhatsApp Wrapper**: Located in `pkg/whatsapp`, this package wraps the `go.mau.fi/whatsmeow` library and handles WhatsApp communication.
+
+### Incoming Message Handling
+
+Incoming messages are processed by an event handler within the `whatsappService` (`api/service/whatsapp_service.go`). When a new message event is received:
+
+1.  The message is parsed.
+2.  If the message contains media (image, audio, document), the media data is saved to disk using the `helper.SaveMedia` function.
+3.  The message details, including the path to the saved media file (if applicable), are stored in the database.
+4.  A webhook request is sent to the configured `WebhookURL` with the message details.
+
+### Configuration
+
+Configuration is loaded from the `.env` file using the `config` package. Key configuration variables include:
+
+-   `DATABASE_URL`: Database connection string.
+-   `REDIS_URL`: Redis connection string for the queue.
+-   `STORAGE_PATH`: **The directory where received media files will be saved.** Ensure this directory has appropriate write permissions.
+-   `WEBHOOK_URL`: The URL where incoming message notifications will be sent.
+-   `HISTORY_SYNC`: Enable or disable history synchronization.
+
 ### Getting Started
 
 To get started with the ZapMeow API, follow these simple steps:
