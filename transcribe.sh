@@ -9,8 +9,8 @@ if [ -z "$1" ]; then
 fi
 
 AUDIO_FILE="$1"
-WHISPER_CLI="./whisper.cpp/build/bin/whisper-cli"
-MODEL_PATH="./whisper.cpp/models/ggml-base.en.bin"
+WHISPER_CLI="../whisper.cpp/build/bin/whisper-cli"
+MODEL_PATH="../whisper.cpp/models/ggml-base.en.bin"
 
 # Check if the whisper-cli executable exists
 if [ ! -f "$WHISPER_CLI" ]; then

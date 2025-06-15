@@ -365,7 +365,7 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 					logger.Error("Failed to save transcription to database. ", err)
 				} else {
 					// Execute the Python script to process the new transcription
-					cmd := exec.Command("python3", "tasks/db_info_processor.py")
+					cmd := exec.Command("/home/james/.venv/bin/python", "tasks/db_info_processor.py")
 					// Assuming the script handles its own paths or is run from project root
 					// cmd.Dir = "/home/jamespitt/src/zapmeow" // Uncomment if script needs specific working dir
 					logger.Info("Executing db_info_processor.py script: ", cmd.String())
