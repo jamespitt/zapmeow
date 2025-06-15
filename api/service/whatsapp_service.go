@@ -18,11 +18,11 @@ import (
 )
 
 type whatsAppService struct {
-	app            *zapmeow.ZapMeow
-	messageService MessageService
-	accountService AccountService
+	app                  *zapmeow.ZapMeow
+	messageService       MessageService
+	accountService       AccountService
 	transcriptionService TranscriptionService
-	whatsApp       whatsapp.WhatsApp
+	whatsApp             whatsapp.WhatsApp
 }
 
 type WhatsAppService interface {
@@ -46,11 +46,11 @@ func NewWhatsAppService(
 	whatsApp whatsapp.WhatsApp,
 ) *whatsAppService {
 	return &whatsAppService{
-		app:            app,
-		messageService: messageService,
-		accountService: accountService,
+		app:                  app,
+		messageService:       messageService,
+		accountService:       accountService,
 		transcriptionService: transcriptionService,
-		whatsApp:       whatsApp,
+		whatsApp:             whatsApp,
 	}
 }
 
@@ -363,6 +363,20 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 				err = w.transcriptionService.CreateTranscription(transcription)
 				if err != nil {
 					logger.Error("Failed to save transcription to database. ", err)
+				} else {
+					// Execute the Python script to process the new transcription
+					cmd := exec.Command("python3", "tasks/db_info_processor.py")
+					// Assuming the script handles its own paths or is run from project root
+					// cmd.Dir = "/home/jamespitt/src/zapmeow" // Uncomment if script needs specific working dir
+					logger.Info("Executing db_info_processor.py script: ", cmd.String())
+					output, scriptErr := cmd.CombinedOutput() // Use CombinedOutput to get both stdout and stderr
+					if scriptErr != nil {
+						logger.Error("Failed to execute db_info_processor.py script: ", scriptErr)
+						logger.Error("db_info_processor.py output: ", string(output))
+					} else {
+						logger.Info("db_info_processor.py script executed successfully.")
+						logger.Info("db_info_processor.py output: ", string(output))
+					}
 				}
 			}
 		}

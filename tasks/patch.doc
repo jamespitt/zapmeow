@@ -1,0 +1,234 @@
+--- a/original_script.py
++++ b/corrected_script.py
+@@ -2,7 +2,9 @@
+ import os.path
+ import argparse
+ from datetime import datetime, timedelta, timezone
++# Import ZoneInfo to handle IANA timezones like 'Europe/London'
++from zoneinfo import ZoneInfo
+ from google.auth.transport.requests import Request
+ from google.oauth2.credentials import Credentials
+ from google_auth_oauthlib.flow import InstalledAppFlow
+@@ -14,6 +16,9 @@
+     "https://www.googleapis.com/auth/calendar.readonly"
+ ]
+ 
++# --- TIMEZONE FIX: Define the London timezone ---
++LONDON_TZ = ZoneInfo("Europe/London")
++
+ # Configuration for filtering calendars and events
+ FILTER_CONFIG = {
+     "james@ultro.co.uk": {
+@@ -40,30 +45,30 @@
+ ]
+ 
+ def get_week_start_end():
+-    """Calculates the start (Monday) and end (Sunday) of the current week."""
+-    today = datetime.now(timezone.utc)
++    """Calculates the start (Monday) and end (Sunday) of the current week in London time."""
++    # --- TIMEZONE FIX: Use London timezone ---
++    today = datetime.now(LONDON_TZ)
+     start_of_week = today - timedelta(days=today.weekday())
+     end_of_week = start_of_week + timedelta(days=6)
+ 
+     return start_of_week.replace(hour=0, minute=0, second=0, microsecond=0), \
+            end_of_week.replace(hour=23, minute=59, second=59, microsecond=999999)
+ 
+ def get_today_start_end():
+-    """Calculates the start and end of the current day."""
+-    today = datetime.now(timezone.utc)
++    """Calculates the start and end of the current day in London time."""
++    # --- TIMEZONE FIX: Use London timezone ---
++    today = datetime.now(LONDON_TZ)
+     start_of_day = today.replace(hour=0, minute=0, second=0, microsecond=0)
+     end_of_day = today.replace(hour=23, minute=59, second=59, microsecond=999999)
+     return start_of_day, end_of_day
+ 
+ def get_tomorrow_start_end():
+-    """Calculates the start and end of tomorrow."""
+-    tomorrow = datetime.now(timezone.utc) + timedelta(days=1)
++    """Calculates the start and end of tomorrow in London time."""
++    # --- TIMEZONE FIX: Use London timezone ---
++    tomorrow = datetime.now(LONDON_TZ) + timedelta(days=1)
+     start_of_tomorrow = tomorrow.replace(hour=0, minute=0, second=0, microsecond=0)
+     end_of_tomorrow = tomorrow.replace(hour=23, minute=59, second=59, microsecond=999999)
+     return start_of_tomorrow, end_of_tomorrow
+ 
+ def authenticate_and_build_services(account_name):
+     """Handles authentication and builds Google API services for a given account."""
+@@ -211,7 +216,8 @@
+                     due_date_display = ""
+                     if due_date_str:
+                         try:
+                             task_due_date_utc = datetime.fromisoformat(due_date_str.replace('Z', '+00:00'))
+-                            task_due_date_local = task_due_date_utc.astimezone()
++                            # --- TIMEZONE FIX: Convert to London timezone for display ---
++                            task_due_date_local = task_due_date_utc.astimezone(LONDON_TZ)
+                             due_date_display = f" (Due: {task_due_date_local.strftime('%a %Y-%m-%d %H:%M')})"
+                         except ValueError:
+                             due_date_display = f" (Malformed due date: {due_date_str})"
+@@ -233,8 +239,9 @@
+                 time_str = ""
+                 try:
+                     if 'T' in start_str: # Timed event
+-                        start_dt = datetime.fromisoformat(start_str.replace('Z', '+00:00')).astimezone()
+-                        end_dt = datetime.fromisoformat(end_str.replace('Z', '+00:00')).astimezone()
++                        # --- TIMEZONE FIX: Convert to London timezone for display ---
++                        start_dt = datetime.fromisoformat(start_str.replace('Z', '+00:00')).astimezone(LONDON_TZ)
++                        end_dt = datetime.fromisoformat(end_str.replace('Z', '+00:00')).astimezone(LONDON_TZ)
+                         time_str = f"{start_dt.strftime('%a %Y-%m-%d %H:%M')} to {end_dt.strftime('%H:%M')}"
+                     else: # All-day event
+                         date_obj = datetime.strptime(start_str, '%Y-%m-%d').date()
+@@ -259,12 +266,13 @@
+             due_date_str = task.get('due')
+             if due_date_str:
+                 try:
+-                    due_date = datetime.fromisoformat(due_date_str.replace('Z', '+00:00')).astimezone()
++                    # --- TIMEZONE FIX: Convert to London time for sorting ---
++                    due_date = datetime.fromisoformat(due_date_str.replace('Z', '+00:00')).astimezone(LONDON_TZ)
+                     combined_items.append((due_date, task, "task"))
+                 except ValueError:
+-                    combined_items.append((datetime.max.replace(tzinfo=timezone.utc), task, "task")) # Put malformed dates at the end
+-            else:
+-                combined_items.append((datetime.max.replace(tzinfo=timezone.utc), task, "task")) # Put tasks with no due date at the end
++                    combined_items.append((datetime.max.replace(tzinfo=LONDON_TZ), task, "task")) # Put malformed dates at the end
++            else:
++                combined_items.append((datetime.max.replace(tzinfo=LONDON_TZ), task, "task")) # Put tasks with no due date at the end
+ 
+     for event in events_data:
+         event_id = event.get('id')
+@@ -275,14 +283,14 @@
+         start_str = event['start'].get('dateTime', event['start'].get('date'))
+         try:
+             if 'T' in start_str:
+-                start_time = datetime.fromisoformat(start_str.replace('Z', '+00:00')).astimezone()
++                start_time = datetime.fromisoformat(start_str.replace('Z', '+00:00')).astimezone(LONDON_TZ)
+             else:
+-                start_time = datetime.strptime(start_str, '%Y-%m-%d').date()
+-                start_time = datetime.combine(start_time, datetime.min.time()).replace(tzinfo=timezone.utc) # Treat all-day events as starting at midnight UTC
++                # --- TIMEZONE FIX: Treat all-day as midnight in London ---
++                date_obj = datetime.strptime(start_str, '%Y-%m-%d').date()
++                start_time = datetime.combine(date_obj, datetime.min.time(), tzinfo=LONDON_TZ)
+             combined_items.append((start_time, event, "event"))
+         except ValueError:
+-            combined_items.append((datetime.max.replace(tzinfo=timezone.utc), event, "event")) # Put malformed dates at the end
++            combined_items.append((datetime.max.replace(tzinfo=LONDON_TZ), event, "event")) # Put malformed dates at the end
+ 
+     combined_items.sort(key=lambda x: x[0])
+ 
+@@ -296,7 +304,7 @@
+                 if due_date_str:
+                     try:
+                         task_due_date_utc = datetime.fromisoformat(due_date_str.replace('Z', '+00:00'))
+-                        task_due_date_local = task_due_date_utc.astimezone()
++                        task_due_date_local = task_due_date_utc.astimezone(LONDON_TZ)
+                         due_date_display = f" (Due: {task_due_date_local.strftime('%a %Y-%m-%d %H:%M')})"
+                     except ValueError:
+                         due_date_display = f" (Malformed due date: {due_date_str})"
+@@ -310,8 +318,8 @@
+                 time_str = ""
+                 try:
+                     if 'T' in start_str: # Timed event
+-                        start_dt = datetime.fromisoformat(start_str.replace('Z', '+00:00')).astimezone()
+-                        end_dt = datetime.fromisoformat(end_str.replace('Z', '+00:00')).astimezone()
++                        start_dt = datetime.fromisoformat(start_str.replace('Z', '+00:00')).astimezone(LONDON_TZ)
++                        end_dt = datetime.fromisoformat(end_str.replace('Z', '+00:00')).astimezone(LONDON_TZ)
+                         time_str = f"{start_dt.strftime('%a %Y-%m-%d %H:%M')} to {end_dt.strftime('%H:%M')}"
+                     else: # All-day event
+                         date_obj = datetime.strptime(start_str, '%Y-%m-%d').date()
+@@ -336,12 +344,13 @@
+             due_date_str = task.get('due')
+             if due_date_str:
+                 try:
+-                    due_date = datetime.fromisoformat(due_date_str.replace('Z', '+00:00')).astimezone()
++                    due_date = datetime.fromisoformat(due_date_str.replace('Z', '+00:00')).astimezone(LONDON_TZ)
+                     combined_items.append((due_date, task, "task"))
+                 except ValueError:
+-                    combined_items.append((datetime.max.replace(tzinfo=timezone.utc), task, "task")) # Put malformed dates at the end
+-            else:
+-                combined_items.append((datetime.max.replace(tzinfo=timezone.utc), task, "task")) # Put tasks with no due date at the end
++                    combined_items.append((datetime.max.replace(tzinfo=LONDON_TZ), task, "task")) # Put malformed dates at the end
++            else:
++                combined_items.append((datetime.max.replace(tzinfo=LONDON_TZ), task, "task")) # Put tasks with no due date at the end
+ 
+     for event in events_data:
+         event_id = event.get('id')
+@@ -352,14 +361,14 @@
+         start_str = event['start'].get('dateTime', event['start'].get('date'))
+         try:
+             if 'T' in start_str:
+-                start_time = datetime.fromisoformat(start_str.replace('Z', '+00:00')).astimezone()
++                start_time = datetime.fromisoformat(start_str.replace('Z', '+00:00')).astimezone(LONDON_TZ)
+             else:
+-                start_time = datetime.strptime(start_str, '%Y-%m-%d').date()
+-                start_time = datetime.combine(start_time, datetime.min.time()).replace(tzinfo=timezone.utc) # Treat all-day events as starting at midnight UTC
++                date_obj = datetime.strptime(start_str, '%Y-%m-%d').date()
++                start_time = datetime.combine(date_obj, datetime.min.time(), tzinfo=LONDON_TZ) # Treat all-day events as starting at midnight in London
+             combined_items.append((start_time, event, "event"))
+         except ValueError:
+-            combined_items.append((datetime.max.replace(tzinfo=timezone.utc), event, "event")) # Put malformed dates at the end
++            combined_items.append((datetime.max.replace(tzinfo=LONDON_TZ), event, "event")) # Put malformed dates at the end
+ 
+     combined_items.sort(key=lambda x: x[0])
+ 
+@@ -373,7 +382,7 @@
+                 if due_date_str:
+                     try:
+                         task_due_date_utc = datetime.fromisoformat(due_date_str.replace('Z', '+00:00'))
+-                        task_due_date_local = task_due_date_utc.astimezone()
++                        task_due_date_local = task_due_date_utc.astimezone(LONDON_TZ)
+                         due_date_display = f" (Due: {task_due_date_local.strftime('%a %Y-%m-%d %H:%M')})"
+                     except ValueError:
+                         due_date_display = f" (Malformed due date: {due_date_str})"
+@@ -387,8 +396,8 @@
+                 time_str = ""
+                 try:
+                     if 'T' in start_str: # Timed event
+-                        start_dt = datetime.fromisoformat(start_str.replace('Z', '+00:00')).astimezone()
+-                        end_dt = datetime.fromisoformat(end_str.replace('Z', '+00:00')).astimezone()
++                        start_dt = datetime.fromisoformat(start_str.replace('Z', '+00:00')).astimezone(LONDON_TZ)
++                        end_dt = datetime.fromisoformat(end_str.replace('Z', '+00:00')).astimezone(LONDON_TZ)
+                         time_str = f"{start_dt.strftime('%a %Y-%m-%d %H:%M')} to {end_dt.strftime('%H:%M')}"
+                     else: # All-day event
+                         date_obj = datetime.strptime(start_str, '%Y-%m-%d').date()
+@@ -403,12 +412,13 @@
+     """Displays tasks and events in Obsidian table format for a given period."""
+     combined_items = []
+     seen_ids = set()
+-
++    
+     # Combine tasks and events, similar to display_tasks_and_events_today
+     for task_list in tasks_data:
+         for task in task_list.get('items', []):
+             task_id = task.get('id')
+             if task_id and task_id in seen_ids:
+                 continue
+             seen_ids.add(task_id)
+ 
+@@ -416,12 +426,12 @@
+             if due_date_str:
+                 try:
+-                    due_date = datetime.fromisoformat(due_date_str.replace('Z', '+00:00')).astimezone()
++                    due_date = datetime.fromisoformat(due_date_str.replace('Z', '+00:00')).astimezone(LONDON_TZ)
+                     combined_items.append((due_date, task, "task"))
+                 except ValueError:
+-                    combined_items.append((datetime.max.replace(tzinfo=timezone.utc), task, "task")) # Put malformed dates at the end
+-            else:
+-                combined_items.append((datetime.max.replace(tzinfo=timezone.utc), task, "task")) # Put tasks with no due date at the end
++                    combined_items.append((datetime.max.replace(tzinfo=LONDON_TZ), task, "task")) # Put malformed dates at the end
++            else:
++                combined_items.append((datetime.max.replace(tzinfo=LONDON_TZ), task, "task")) # Put tasks with no due date at the end
+ 
+     for event in events_data:
+         event_id = event.get('id')
+@@ -432,14 +442,14 @@
+         start_str = event['start'].get('dateTime', event['start'].get('date'))
+         try:
+             if 'T' in start_str:
+-                start_time = datetime.fromisoformat(start_str.replace('Z', '+00:00')).astimezone()
++                start_time = datetime.fromisoformat(start_str.replace('Z', '+00:00')).astimezone(LONDON_TZ)
+             else:
+-                start_time = datetime.strptime(start_str, '%Y-%m-%d').date()
+-                start_time = datetime.combine(start_time, datetime.min.time()).replace(tzinfo=timezone.utc) # Treat all-day events as starting at midnight UTC
++                date_obj = datetime.strptime(start_str, '%Y-%m-%d').date()
++                start_time = datetime.combine(date_obj,
