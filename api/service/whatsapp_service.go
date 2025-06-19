@@ -382,6 +382,41 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 		}
 	}
 
+	// Check for text message triggers
+	if parsedEventMessage.MediaType == nil && parsedEventMessage.Body != "" && !parsedEventMessage.FromMe { // Condition for a plain text message, not from me
+		// Check against global excluded sender JIDs first
+		isExcluded := false
+		for _, excludedJID := range w.app.Config.ExcludedSenderJIDs {
+			if parsedEventMessage.SenderJID == excludedJID {
+				isExcluded = true
+				logger.Info("Sender JID ", parsedEventMessage.SenderJID, " is globally excluded. Skipping chat triggers.")
+				break
+			}
+		}
+
+		if !isExcluded { // Only proceed if sender is not globally excluded
+			chatJID := parsedEventMessage.ChatJID
+			messageBody := parsedEventMessage.Body
+
+			for _, trigger := range w.app.Config.ChatTriggers {
+				if trigger.ChatID == chatJID {
+					logger.Info("Found chat trigger for ChatID ", chatJID, ", script: ", trigger.Script)
+					cmd := exec.Command(trigger.Script, chatJID, messageBody)
+					output, scriptErr := cmd.CombinedOutput()
+
+					if scriptErr != nil {
+						logger.Error("Failed to execute script ", trigger.Script, " for ChatID ", chatJID, ": ", scriptErr, ". Output: ", string(output))
+					} else {
+						logger.Info("Successfully executed script ", trigger.Script, " for ChatID ", chatJID, ".")
+						if len(output) > 0 {
+							logger.Info("Script ", trigger.Script, " output: ", string(output))
+						}
+					}
+				}
+			}
+		}
+	}
+
 	err = w.messageService.CreateMessage(&message)
 	if err != nil {
 		logger.Error("Failed to create message. ", err)
