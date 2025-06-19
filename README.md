@@ -97,3 +97,28 @@ To get started with the ZapMeow API, follow these simple steps:
     The Swagger documentation provides detailed information about the available API endpoints, request parameters, and response formats.
 
 Now, your ZapMeow API is up and running, ready for you to start interacting with WhatsApp instances programmatically.
+
+### Audio Transcription
+
+The project includes a script `transcribe.sh` to transcribe audio files using the `whisper.cpp` library.
+
+**Prerequisites:**
+
+1.  **Build `whisper.cpp`**: Ensure that you have successfully built the `whisper.cpp` project. The script expects the `whisper-cli` executable to be at `../whisper.cpp/build/bin/whisper-cli`.
+2.  **Download Model**: Download a `whisper.cpp` compatible model and place it in the `../whisper.cpp/models/` directory. The script defaults to using `ggml-base.en.bin`, so you might need to run `./models/download-ggml-model.sh base.en` from within the `whisper.cpp` directory.
+
+**Usage:**
+
+To transcribe an audio file, run the script from the project root directory with the path to the audio file as an argument:
+
+```sh
+./transcribe.sh <path_to_your_audio_file>
+```
+
+For example:
+
+```sh
+./transcribe.sh A58724DD983F41155872C278E700C296.oga
+```
+
+The script will output the transcription to the console. Make sure the audio file exists and the paths to `whisper-cli` and the model are correct within the `transcribe.sh` script if you have a different setup.

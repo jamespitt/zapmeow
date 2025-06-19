@@ -6,6 +6,8 @@ import (
 	"os/user"
 	"strconv"
 	"strings"
+
+	"gopkg.in/yaml.v3"
 )
 
 type Environment = uint
@@ -26,6 +28,13 @@ type Config struct {
 	HistorySyncQueueName string
 	HistorySync          bool
 	MaxMessageSync       int
+	ChatTriggers         []ChatTriggerConfig
+	ExcludedSenderJIDs   []string `yaml:"excluded_sender_jids"`
+}
+
+type ChatTriggerConfig struct {
+	ChatID string `yaml:"chat_id"`
+	Script string `yaml:"script"`
 }
 
 func Load() Config {
@@ -59,6 +68,24 @@ func Load() Config {
 		log.Fatal(err)
 	}
 
+	// Load chat triggers
+	chatTriggersData, err := os.ReadFile("config/chat_triggers.yaml")
+	if err != nil {
+		log.Printf("Warning: Could not read chat_triggers.yaml: %v. Proceeding without chat triggers.", err)
+	}
+
+	var fullChatConfig struct {
+		ExcludedJIDs []string            `yaml:"excluded_sender_jids"`
+		Triggers     []ChatTriggerConfig `yaml:"chat_triggers"`
+	}
+
+	if chatTriggersData != nil {
+		err = yaml.Unmarshal(chatTriggersData, &fullChatConfig)
+		if err != nil {
+			log.Fatalf("Failed to unmarshal chat_triggers.yaml: %v", err)
+		}
+	}
+
 	return Config{
 		Environment:          environment,
 		StoragePath:          storagePathEnv,
@@ -70,6 +97,8 @@ func Load() Config {
 		HistorySyncQueueName: "queue:history-sync",
 		HistorySync:          historySync,
 		MaxMessageSync:       maxMessageSync,
+		ChatTriggers:         fullChatConfig.Triggers,
+		ExcludedSenderJIDs:   fullChatConfig.ExcludedJIDs,
 	}
 }
 
