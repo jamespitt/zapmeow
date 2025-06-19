@@ -2,6 +2,7 @@ package service
 
 import (
 	"os/exec"
+	"path/filepath" // Added for filepath.Base
 	"strings" // Ensure strings package is imported
 	"zapmeow/api/helper"
 	"zapmeow/api/model"
@@ -419,10 +420,12 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 			for _, trigger := range w.app.Config.ChatTriggers {
 				if stripJIDSuffix(trigger.ChatID) == chatJID { // Compare with stripped JID from config
 					logger.Info("Found chat trigger for ChatID ", chatJID, " (config: ", trigger.ChatID, "), script: ", trigger.Script)
-					// Pass the original ChatJID from the event (without suffix) to the script
-					// and the original messageBody.
-					// The scripts (coaching.py, saynice.py) now hardcode their *reply* JIDs.
-					cmd := exec.Command(trigger.Script, parsedEventMessage.ChatJID, messageBody) 
+					// Pass the Python script name as the first arg to run.sh, then original ChatJID and messageBody
+					scriptName := filepath.Base(trigger.Script)
+					// Arguments for run.sh: script_to_run.py, arg1_for_script, arg2_for_script, ...
+					// The Python scripts themselves no longer use these command-line args for recipient JID.
+					// They are passed for potential logging or other uses within the script if ever needed.
+					cmd := exec.Command("/home/james/src/james_notes/tasks/run.sh", scriptName, parsedEventMessage.ChatJID, messageBody)
 					output, scriptErr := cmd.CombinedOutput()
 
 					if scriptErr != nil {
