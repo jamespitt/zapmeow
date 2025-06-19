@@ -5,5 +5,5 @@ excluded_sender_jids:
 chat_triggers:
   - chat_id: "120363401214475360@s.whatsapp.net"
     script: "tasks/coaching.py"
-  - chat_id: "120363420685050695@s.whatsapp.net"
+  - chat_id: "120363420685050695@g.us" # Changed to @g.us for group
     script: "tasks/saynice.py"
