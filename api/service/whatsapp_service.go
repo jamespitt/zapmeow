@@ -2,6 +2,7 @@ package service
 
 import (
 	"os/exec"
+	"strings" // Ensure strings package is imported
 	"zapmeow/api/helper"
 	"zapmeow/api/model"
 	"zapmeow/api/queue"
@@ -16,6 +17,14 @@ import (
 	"go.mau.fi/whatsmeow/types/events"
 	"google.golang.org/protobuf/proto"
 )
+
+// stripJIDSuffix removes the @server part from a JID string.
+func stripJIDSuffix(jid string) string {
+	if idx := strings.Index(jid, "@"); idx != -1 {
+		return jid[:idx]
+	}
+	return jid
+}
 
 type whatsAppService struct {
 	app                  *zapmeow.ZapMeow
@@ -395,22 +404,25 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 	if parsedEventMessage.MediaType == nil && parsedEventMessage.Body != "" && !parsedEventMessage.FromMe { // Condition for a plain text message, not from me
 		// Check against global excluded sender JIDs first
 		isExcluded := false
-		for _, excludedJID := range w.app.Config.ExcludedSenderJIDs {
-			if parsedEventMessage.SenderJID == excludedJID {
+		for _, excludedJIDConfig := range w.app.Config.ExcludedSenderJIDs {
+			if parsedEventMessage.SenderJID == stripJIDSuffix(excludedJIDConfig) { // Compare with stripped JID from config
 				isExcluded = true
-				logger.Info("Sender JID ", parsedEventMessage.SenderJID, " is globally excluded. Skipping chat triggers.")
+				logger.Info("Sender JID ", parsedEventMessage.SenderJID, " is globally excluded (config: ", excludedJIDConfig, "). Skipping chat triggers.")
 				break
 			}
 		}
 
 		if !isExcluded { // Only proceed if sender is not globally excluded
-			chatJID := parsedEventMessage.ChatJID
+			chatJID := parsedEventMessage.ChatJID // This is already without suffix
 			messageBody := parsedEventMessage.Body
 
 			for _, trigger := range w.app.Config.ChatTriggers {
-				if trigger.ChatID == chatJID {
-					logger.Info("Found chat trigger for ChatID ", chatJID, ", script: ", trigger.Script)
-					cmd := exec.Command(trigger.Script, chatJID, messageBody)
+				if stripJIDSuffix(trigger.ChatID) == chatJID { // Compare with stripped JID from config
+					logger.Info("Found chat trigger for ChatID ", chatJID, " (config: ", trigger.ChatID, "), script: ", trigger.Script)
+					// Pass the original ChatJID from the event (without suffix) to the script
+					// and the original messageBody.
+					// The scripts (coaching.py, saynice.py) now hardcode their *reply* JIDs.
+					cmd := exec.Command(trigger.Script, parsedEventMessage.ChatJID, messageBody) 
 					output, scriptErr := cmd.CombinedOutput()
 
 					if scriptErr != nil {

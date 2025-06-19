@@ -354,8 +354,8 @@ func (w *whatsApp) ParseEventMessage(instance *Instance, message *events.Message
 		InstanceID: instance.ID,
 		Body:       text,
 		MessageID:  message.Info.ID,
-		ChatJID:    message.Info.Chat.String(),
-		SenderJID:  message.Info.Sender.String(),
+		ChatJID:    message.Info.Chat.User,
+		SenderJID:  message.Info.Sender.User,
 		FromMe:     message.Info.MessageSource.IsFromMe,
 		Timestamp:  message.Info.Timestamp,
 	}
