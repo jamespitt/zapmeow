@@ -317,6 +317,15 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 		FromMe:     parsedEventMessage.FromMe,
 	}
 
+	logger.Info(
+		"[DEBUG] Handling message. Parsed Event Details: ",
+		"ChatJID='", parsedEventMessage.ChatJID, "', ",
+		"SenderJID='", parsedEventMessage.SenderJID, "', ",
+		"FromMe='", parsedEventMessage.FromMe, "', ",
+		"Body='", parsedEventMessage.Body, "',",
+		"MediaType='", parsedEventMessage.MediaType, "'", // MediaType is a pointer, might print address or <nil>
+	)
+
 	if parsedEventMessage.MediaType != nil {
 		path, err := helper.SaveMedia(
 			instance.ID,
