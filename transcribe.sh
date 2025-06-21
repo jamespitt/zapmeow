@@ -31,5 +31,5 @@ if [ ! -f "$AUDIO_FILE" ]; then
 fi
 
 # Run the transcription
-echo "Transcribing $AUDIO_FILE..."
+#echo "Transcribing $AUDIO_FILE..."
 "$WHISPER_CLI" -m "$MODEL_PATH" -f "$AUDIO_FILE"
