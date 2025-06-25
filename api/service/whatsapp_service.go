@@ -384,7 +384,7 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 					logger.Error("Failed to save transcription to database. ", err)
 				} else {
 					// Execute the Python script to process the new transcription
-					cmd := exec.Command("/home/james/src/james_notes/tasks/run.sh","db_info_processor.py", "/tmp/db_info_process.log", parsedEventMessage.ChatJID)
+					cmd := exec.Command("./tasks/run.sh","db_info_processor.py", "/tmp/db_info_process.log", parsedEventMessage.ChatJID)
 					// Assuming the script handles its own paths or is run from project root
 					// cmd.Dir = "/home/jamespitt/src/zapmeow" // Uncomment if script needs specific working dir
 					logger.Info("Executing db_info_processor.py script: ", cmd.String())
@@ -425,7 +425,7 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 					// Arguments for run.sh: script_to_run.py, arg1_for_script, arg2_for_script, ...
 					// The Python scripts themselves no longer use these command-line args for recipient JID.
 					// They are passed for potential logging or other uses within the script if ever needed.
-					cmd := exec.Command("/home/james/src/james_notes/tasks/run.sh", scriptName, parsedEventMessage.ChatJID, messageBody)
+					cmd := exec.Command("./tasks/run.sh", scriptName, parsedEventMessage.ChatJID, messageBody)
 					output, scriptErr := cmd.CombinedOutput()
 
 					if scriptErr != nil {
