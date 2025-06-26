@@ -66,8 +66,9 @@ To deploy the application, you need to build the binary and restart the service.
 go build cmd/server/main.go
 ```
 
-**Restart the service:**
+**Restart the services:**
 
 ```bash
 sudo systemctl restart zapmeow
+sudo systemctl restart chatbot
 ```
