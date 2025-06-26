@@ -122,3 +122,19 @@ For example:
 ```
 
 The script will output the transcription to the console. Make sure the audio file exists and the paths to `whisper-cli` and the model are correct within the `transcribe.sh` script if you have a different setup.
+
+### Deployment
+
+To deploy the application, you need to build the binary and restart the service.
+
+**Build the application:**
+
+```sh
+go build cmd/server/main.go
+```
+
+**Restart the service:**
+
+```sh
+sudo systemctl restart zapmeow
+```
