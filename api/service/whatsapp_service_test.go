@@ -61,16 +61,6 @@ func (m *mockAccountService) GetConnectedAccounts() ([]model.Account, error) {
 	return nil, nil
 } 
 
-// mockTranscriptionService implements TranscriptionService for testing
-type mockTranscriptionService struct{}
-
-func (m *mockTranscriptionService) CreateTranscription(transcription *model.Transcription) error {
-	return nil
-} 
-func (m *mockTranscriptionService) FindByMessageID(messageID string) (*model.Transcription, error) {
-	return nil, nil
-} 
-
 // mockWhatsApp implements whatsapp.WhatsApp for testing
 type mockWhatsApp struct{}
 
@@ -201,10 +191,9 @@ func TestHandleMessage_ChatTriggers(t *testing.T) {
 
 	mockMsgService := &mockMessageService{}
 	mockAccService := &mockAccountService{}
-	mockTransService := &mockTranscriptionService{}
 	mockWa := &mockWhatsApp{}
 
-	service := NewWhatsAppService(app, mockMsgService, mockAccService, mockTransService, mockWa)
+	service := NewWhatsAppService(app, mockMsgService, mockAccService, mockWa)
 
 	outputFilePath := "/tmp/test_trigger_output.txt"
 

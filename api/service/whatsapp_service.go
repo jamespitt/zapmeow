@@ -28,12 +28,11 @@ func stripJIDSuffix(jid string) string {
 }
 
 type whatsAppService struct {
-	app                  *zapmeow.ZapMeow
-	messageService       MessageService
-	accountService       AccountService
-	transcriptionService TranscriptionService
-	groupService         GroupService
-	whatsApp             whatsapp.WhatsApp
+	app            *zapmeow.ZapMeow
+	messageService MessageService
+	accountService AccountService
+	groupService   GroupService
+	whatsApp       whatsapp.WhatsApp
 }
 
 type WhatsAppService interface {
@@ -54,17 +53,15 @@ func NewWhatsAppService(
 	app *zapmeow.ZapMeow,
 	messageService MessageService,
 	accountService AccountService,
-	transcriptionService TranscriptionService,
 	groupService GroupService,
 	whatsApp whatsapp.WhatsApp,
 ) *whatsAppService {
 	return &whatsAppService{
-		app:                  app,
-		messageService:       messageService,
-		accountService:       accountService,
-		transcriptionService: transcriptionService,
-		groupService:         groupService,
-		whatsApp:             whatsApp,
+		app:            app,
+		messageService: messageService,
+		accountService: accountService,
+		groupService:   groupService,
+		whatsApp:       whatsApp,
 	}
 }
 
@@ -368,55 +365,6 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 
 		message.MediaType = parsedEventMessage.MediaType.String()
 		message.MediaPath = path
-	}
-
-	// Check if the message is an audio message and if media was saved
-	if parsedEventMessage.MediaType != nil && parsedEventMessage.MediaType.String() == "audio" && message.MediaPath != "" {
-		// Check if transcription already exists for this message
-		existingTranscription, err := w.transcriptionService.FindByMessageID(message.MessageID)
-		if err != nil {
-			logger.Error("Failed to check for existing transcription. ", err)
-		} else if existingTranscription != nil {
-			logger.Info("Transcription already exists for message ID: ", message.MessageID)
-		} else {
-			// Execute the transcription script
-			cmd := exec.Command("./transcribe.sh", message.MediaPath)
-			logger.Info("Executing transcription script: ", cmd.String())
-			output, err := cmd.Output()
-			if err != nil {
-				logger.Error("Failed to execute transcription script: ", err)
-				// Log stderr if available
-				if exitErr, ok := err.(*exec.ExitError); ok {
-					logger.Error("Transcription script stderr: ", string(exitErr.Stderr))
-				}
-			} else {
-				transcribedText := string(output)
-				logger.Info("Transcription result: ", transcribedText)
-
-				transcription := &model.Transcription{
-					MessageID: message.MessageID,
-					Text:      transcribedText,
-				}
-				err = w.transcriptionService.CreateTranscription(transcription)
-				if err != nil {
-					logger.Error("Failed to save transcription to database. ", err)
-				} else {
-					// Execute the Python script to process the new transcription
-					cmd := exec.Command("./tasks/run.sh", "db_info_processor.py", parsedEventMessage.ChatJID)
-					// Assuming the script handles its own paths or is run from project root
-					// cmd.Dir = "/home/jamespitt/src/zapmeow" // Uncomment if script needs specific working dir
-					logger.Info("Executing db_info_processor.py script: ", cmd.String())
-					output, scriptErr := cmd.CombinedOutput() // Use CombinedOutput to get both stdout and stderr
-					if scriptErr != nil {
-						logger.Error("Failed to execute db_info_processor.py script: ", scriptErr)
-						logger.Error("db_info_processor.py output: ", string(output))
-					} else {
-						logger.Info("db_info_processor.py script executed successfully.")
-						logger.Info("db_info_processor.py output: ", string(output))
-					}
-				}
-			}
-		}
 	}
 
 	// Check for text message triggers
