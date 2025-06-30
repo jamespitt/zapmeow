@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"zapmeow/api/helper"
 	"zapmeow/api/response"
 	"zapmeow/api/service"
 	"zapmeow/pkg/whatsapp"
@@ -51,7 +50,7 @@ func (h *getContactInfoHandler) Handler(c *gin.Context) {
 	}
 
 	phone := c.Query("phone")
-	jid, ok := helper.MakeJID(phone)
+	jid, ok := whatsapp.MakeJID(phone)
 	if !ok {
 		response.ErrorResponse(c, http.StatusBadRequest, "Error trying to validate infos. ")
 		return

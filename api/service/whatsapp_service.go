@@ -32,6 +32,7 @@ type whatsAppService struct {
 	messageService       MessageService
 	accountService       AccountService
 	transcriptionService TranscriptionService
+	groupService         GroupService
 	whatsApp             whatsapp.WhatsApp
 }
 
@@ -44,6 +45,7 @@ type WhatsAppService interface {
 	SendDocumentMessage(instance *whatsapp.Instance, jid whatsapp.JID, documentURL *dataurl.DataURL, mimitype string, filename string) (whatsapp.MessageResponse, error)
 	SendImageMessage(instance *whatsapp.Instance, jid whatsapp.JID, imageURL *dataurl.DataURL, mimitype string) (whatsapp.MessageResponse, error)
 	GetContactInfo(instance *whatsapp.Instance, jid whatsapp.JID) (*whatsapp.ContactInfo, error)
+	GetGroupInfo(instance *whatsapp.Instance, groupID string) (*types.GroupInfo, error)
 	ParseEventMessage(instance *whatsapp.Instance, message *events.Message) (whatsapp.Message, error)
 	IsOnWhatsApp(instance *whatsapp.Instance, phones []string) ([]whatsapp.IsOnWhatsAppResponse, error)
 }
@@ -53,6 +55,7 @@ func NewWhatsAppService(
 	messageService MessageService,
 	accountService AccountService,
 	transcriptionService TranscriptionService,
+	groupService GroupService,
 	whatsApp whatsapp.WhatsApp,
 ) *whatsAppService {
 	return &whatsAppService{
@@ -60,8 +63,23 @@ func NewWhatsAppService(
 		messageService:       messageService,
 		accountService:       accountService,
 		transcriptionService: transcriptionService,
+		groupService:         groupService,
 		whatsApp:             whatsApp,
 	}
+}
+
+func (w *whatsAppService) GetGroupInfo(instance *whatsapp.Instance, groupID string) (*types.GroupInfo, error) {
+	groupInfo, err := w.whatsApp.GetGroupInfo(instance, groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = w.groupService.CreateOrUpdateGroup(instance.ID, groupInfo)
+	if err != nil {
+		logger.Error("Failed to create or update group. ", err)
+	}
+
+	return groupInfo, nil
 }
 
 func (w *whatsAppService) SendTextMessage(

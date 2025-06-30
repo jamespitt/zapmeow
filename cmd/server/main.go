@@ -71,16 +71,19 @@ func main() {
 	messageRepo := repository.NewMessageRepository(app.Database)
 	accountRepo := repository.NewAccountRepository(app.Database)
 	transcriptionRepo := repository.NewTranscriptionRepository(app.Database)
+	groupRepo := repository.NewGroupRepository(app.Database)
 
 	// service
 	messageService := service.NewMessageService(messageRepo)
 	accountService := service.NewAccountService(accountRepo, messageService)
 	transcriptionService := service.NewTranscriptionService(transcriptionRepo)
+	groupService := service.NewGroupService(groupRepo)
 	whatsAppService := service.NewWhatsAppService(
 		app,
 		messageService,
 		accountService,
 		transcriptionService,
+		groupService,
 		whatsApp,
 	)
 

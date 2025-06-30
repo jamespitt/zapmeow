@@ -117,6 +117,7 @@ type WhatsApp interface {
 	SendImageMessage(instance *Instance, jid JID, imageURL *dataurl.DataURL, mimitype string) (MessageResponse, error)
 	SendDocumentMessage(instance *Instance, jid JID, documentURL *dataurl.DataURL, mimitype string, filename string) (MessageResponse, error)
 	GetContactInfo(instance *Instance, jid JID) (*ContactInfo, error)
+	GetGroupInfo(instance *Instance, groupID string) (*types.GroupInfo, error)
 	ParseEventMessage(instance *Instance, message *events.Message) (Message, error)
 	IsOnWhatsApp(instance *Instance, phones []string) ([]IsOnWhatsAppResponse, error)
 }
@@ -139,6 +140,15 @@ func NewWhatsApp(databasePath string) *whatsApp {
 		logger.Fatal(err)
 	}
 	return &whatsApp{container: container}
+}
+
+func (w *whatsApp) GetGroupInfo(instance *Instance, groupID string) (*types.GroupInfo, error) {
+	jid, ok := MakeJID(groupID)
+	if !ok {
+		return nil, errors.New("invalid group id")
+	}
+
+	return instance.Client.GetGroupInfo(jid)
 }
 
 func (w *whatsApp) CreateInstance(id string) *Instance {

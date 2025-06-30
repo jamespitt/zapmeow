@@ -71,6 +71,9 @@ func SetupRouter(
 		whatsAppService,
 		messageService,
 	)
+	getGroupInfoHandler := handler.NewGetGroupInfoHandler(
+		whatsAppService,
+	)
 
 	group := router.Group("/api")
 
@@ -78,6 +81,7 @@ func SetupRouter(
 	group.GET("/:instanceId/status", getStatusHandler.Handler)
 	group.GET("/:instanceId/profile", getProfileInfoHandler.Handler)
 	group.GET("/:instanceId/contact/info", getContactInfoHandler.Handler)
+	group.GET("/:instanceId/group/info", getGroupInfoHandler.Handler)
 	group.POST("/:instanceId/logout", logoutHandler.Handler)
 	group.POST("/:instanceId/check/phones", checkPhonesHandler.Handler)
 	group.POST("/:instanceId/chat/messages", getMessagesHandler.Handler)

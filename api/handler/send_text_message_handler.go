@@ -2,10 +2,10 @@ package handler
 
 import (
 	"net/http"
-	"zapmeow/api/helper"
 	"zapmeow/api/model"
 	"zapmeow/api/response"
 	"zapmeow/api/service"
+	"zapmeow/pkg/whatsapp"
 
 	"github.com/gin-gonic/gin"
 )
@@ -60,7 +60,7 @@ func (h *sendTextMessageHandler) Handler(c *gin.Context) {
 		return
 	}
 
-	jid, ok := helper.MakeJID(body.Phone)
+	jid, ok := whatsapp.MakeJID(body.Phone)
 	if !ok {
 		response.ErrorResponse(c, http.StatusBadRequest, "Invalid phone")
 		return
