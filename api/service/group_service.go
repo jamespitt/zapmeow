@@ -36,9 +36,9 @@ func (s *groupService) CreateOrUpdateGroup(instanceID string, groupInfo *types.G
 	group.OwnerJID = groupInfo.OwnerJID.String()
 	group.GroupName = groupInfo.GroupName.Name
 	group.GroupTopic = groupInfo.GroupTopic.Topic
-	group.TopicSetBy = groupInfo.GroupTopic.SetterJID.String()
-	group.TopicSetAt = groupInfo.GroupTopic.SetAt
-	group.GroupLocked = groupInfo.IsLocked()
+	group.TopicSetBy = groupInfo.GroupTopic.TopicSetBy.String()
+	group.TopicSetAt = groupInfo.GroupTopic.TopicSetAt.Unix()
+	group.GroupLocked = groupInfo.GroupLocked.IsLocked
 
 	return s.groupRepo.CreateGroup(group)
 }
