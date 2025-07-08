@@ -18,18 +18,17 @@ const (
 )
 
 type Config struct {
-	Environment          Environment
-	StoragePath          string
-	WebhookURL           string
-	DatabaseURL          string
-	RedisAddr            string
-	RedisPassword        string
-	Port                 string
-	HistorySyncQueueName string
-	HistorySync          bool
-	MaxMessageSync       int
-	ChatTriggers         []ChatTriggerConfig
-	ExcludedSenderJIDs   []string `yaml:"excluded_sender_jids"`
+	Environment        string
+	DatabaseURL        string
+	RedisAddr          string
+	RedisPassword      string
+	Port               string
+	HistorySync        bool
+	MaxMessageSync     int
+	WebhookURL         string
+	ExcludedSenderJIDs []string
+	ChatTriggers       []ChatTriggerConfig
+	RootDir            string
 }
 
 type ChatTriggerConfig struct {
@@ -82,23 +81,21 @@ func Load() Config {
 	if chatTriggersData != nil {
 		err = yaml.Unmarshal(chatTriggersData, &fullChatConfig)
 		if err != nil {
-			log.Fatalf("Failed to unmarshal chat_triggers.yaml: %v", err)
-		}
+		log.Fatalf("Failed to unmarshal chat_triggers.yaml: %v", err)
 	}
 
 	return Config{
-		Environment:          environment,
-		StoragePath:          storagePathEnv,
-		WebhookURL:           webhookURLEnv,
-		DatabaseURL:          databaseURLEnv,
-		RedisAddr:            redisAddrEnv,
-		RedisPassword:        redisPasswordEnv,
-		Port:                 portEnv,
-		HistorySyncQueueName: "queue:history-sync",
-		HistorySync:          historySync,
-		MaxMessageSync:       maxMessageSync,
-		ChatTriggers:         fullChatConfig.Triggers,
-		ExcludedSenderJIDs:   fullChatConfig.ExcludedJIDs,
+		Environment:        string(environment),
+		DatabaseURL:        databaseURLEnv,
+		RedisAddr:          redisAddrEnv,
+		RedisPassword:      redisPasswordEnv,
+		Port:               portEnv,
+		HistorySync:        historySync,
+		MaxMessageSync:     maxMessageSync,
+		WebhookURL:         webhookURLEnv,
+		ExcludedSenderJIDs: fullChatConfig.ExcludedJIDs,
+		ChatTriggers:       fullChatConfig.Triggers,
+		RootDir:            storagePathEnv,
 	}
 }
 

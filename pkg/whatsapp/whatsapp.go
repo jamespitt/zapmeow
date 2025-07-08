@@ -118,6 +118,7 @@ type WhatsApp interface {
 	SendDocumentMessage(instance *Instance, jid JID, documentURL *dataurl.DataURL, mimitype string, filename string) (MessageResponse, error)
 	GetContactInfo(instance *Instance, jid JID) (*ContactInfo, error)
 	GetGroupInfo(instance *Instance, groupID string) (*types.GroupInfo, error)
+	GetJoinedGroups(instance *Instance) ([]*types.GroupInfo, error)
 	ParseEventMessage(instance *Instance, message *events.Message) (Message, error)
 	IsOnWhatsApp(instance *Instance, phones []string) ([]IsOnWhatsAppResponse, error)
 }
@@ -149,6 +150,10 @@ func (w *whatsApp) GetGroupInfo(instance *Instance, groupID string) (*types.Grou
 	}
 
 	return instance.Client.GetGroupInfo(jid)
+}
+
+func (w *whatsApp) GetJoinedGroups(instance *Instance) ([]*types.GroupInfo, error) {
+	return instance.Client.GetJoinedGroups()
 }
 
 func (w *whatsApp) CreateInstance(id string) *Instance {

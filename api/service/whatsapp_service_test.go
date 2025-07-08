@@ -47,18 +47,24 @@ func (m *mockMessageService) DeleteMessagesByInstanceID(instanceID string) error
 // mockAccountService implements AccountService for testing
 type mockAccountService struct{}
 
-func (m *mockAccountService) CreateAccount(account *model.Account) error { return nil } 
+func (m *mockAccountService) CreateAccount(account *model.Account) error { return nil }
 func (m *mockAccountService) GetAccountByInstanceID(id string) (*model.Account, error) {
 	return nil, nil
-} 
+}
 func (m *mockAccountService) UpdateAccount(id string, updates map[string]interface{}) error {
 	return nil
-} 
+}
 func (m *mockAccountService) DeleteAccountMessages(id string) error {
 	return nil
-} 
+}
 func (m *mockAccountService) GetConnectedAccounts() ([]model.Account, error) {
 	return nil, nil
+}
+
+type mockGroupService struct{}
+
+func (m *mockGroupService) CreateOrUpdateGroup(instanceID string, groupInfo *types.GroupInfo) error {
+	return nil
 } 
 
 // mockWhatsApp implements whatsapp.WhatsApp for testing
@@ -93,6 +99,12 @@ func (m *mockWhatsApp) SendDocumentMessage(instance *whatsapp.Instance, jid type
 	return whatsapp.MessageResponse{}, nil
 }
 func (m *mockWhatsApp) GetContactInfo(instance *whatsapp.Instance, jid types.JID) (*whatsapp.ContactInfo, error) {
+	return nil, nil
+}
+func (m *mockWhatsApp) GetGroupInfo(instance *whatsapp.Instance, groupID string) (*types.GroupInfo, error) {
+	return nil, nil
+}
+func (m *mockWhatsApp) GetJoinedGroups(instance *whatsapp.Instance) ([]*types.GroupInfo, error) {
 	return nil, nil
 }
 func (m *mockWhatsApp) ParseEventMessage(instance *whatsapp.Instance, message *events.Message) (whatsapp.Message, error) {
@@ -193,7 +205,7 @@ func TestHandleMessage_ChatTriggers(t *testing.T) {
 	mockAccService := &mockAccountService{}
 	mockWa := &mockWhatsApp{}
 
-	service := NewWhatsAppService(app, mockMsgService, mockAccService, mockWa)
+	service := NewWhatsAppService(app, mockMsgService, mockAccService, &mockGroupService{}, mockWa)
 
 	outputFilePath := "/tmp/test_trigger_output.txt"
 

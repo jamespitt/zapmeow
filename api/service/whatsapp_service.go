@@ -45,6 +45,7 @@ type WhatsAppService interface {
 	SendImageMessage(instance *whatsapp.Instance, jid whatsapp.JID, imageURL *dataurl.DataURL, mimitype string) (whatsapp.MessageResponse, error)
 	GetContactInfo(instance *whatsapp.Instance, jid whatsapp.JID) (*whatsapp.ContactInfo, error)
 	GetGroupInfo(instance *whatsapp.Instance, groupID string) (*types.GroupInfo, error)
+	SyncGroups(instance *whatsapp.Instance) ([]*types.GroupInfo, error)
 	ParseEventMessage(instance *whatsapp.Instance, message *events.Message) (whatsapp.Message, error)
 	IsOnWhatsApp(instance *whatsapp.Instance, phones []string) ([]whatsapp.IsOnWhatsAppResponse, error)
 }
@@ -63,6 +64,22 @@ func NewWhatsAppService(
 		groupService:   groupService,
 		whatsApp:       whatsApp,
 	}
+}
+
+func (w *whatsAppService) SyncGroups(instance *whatsapp.Instance) ([]*types.GroupInfo, error) {
+	groups, err := w.whatsApp.GetJoinedGroups(instance)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, group := range groups {
+		err = w.groupService.CreateOrUpdateGroup(instance.ID, group)
+		if err != nil {
+			logger.Error("Failed to create or update group. ", err)
+		}
+	}
+
+	return groups, nil
 }
 
 func (w *whatsAppService) GetGroupInfo(instance *whatsapp.Instance, groupID string) (*types.GroupInfo, error) {
@@ -391,7 +408,7 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 					// Arguments for run.sh: script_to_run.py, arg1_for_script, arg2_for_script, ...
 					// The Python scripts themselves no longer use these command-line args for recipient JID.
 					// They are passed for potential logging or other uses within the script if ever needed.
-					cmd := exec.Command("./tasks/run.sh", scriptName, parsedEventMessage.ChatJID, messageBody)
+					cmd := exec.Command(filepath.Join(w.app.Config.RootDir, "tasks", "run.sh"), scriptName, parsedEventMessage.ChatJID, messageBody)
 					output, scriptErr := cmd.CombinedOutput()
 
 					if scriptErr != nil {

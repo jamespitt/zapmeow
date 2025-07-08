@@ -95,6 +95,7 @@ func main() {
 		whatsAppService,
 		messageService,
 		accountService,
+		groupService,
 	)
 
 	logger.Info("Loading whatsapp instances")
