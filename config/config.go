@@ -29,6 +29,8 @@ type Config struct {
 	ExcludedSenderJIDs []string
 	ChatTriggers       []ChatTriggerConfig
 	RootDir            string
+	StoragePath        string
+	HistorySyncQueueName string
 }
 
 type ChatTriggerConfig struct {
@@ -45,7 +47,6 @@ func Load() Config {
 	portEnv := os.Getenv("PORT")
 	historySyncEnv := os.Getenv("HISTORY_SYNC")
 	maxMessageSyncEnv := os.Getenv("MAX_MESSAGE_SYNC")
-	environment := getEnvironment()
 
 	usr, err := user.Current()
 	if err != nil {
@@ -81,11 +82,12 @@ func Load() Config {
 	if chatTriggersData != nil {
 		err = yaml.Unmarshal(chatTriggersData, &fullChatConfig)
 		if err != nil {
-		log.Fatalf("Failed to unmarshal chat_triggers.yaml: %v", err)
+			log.Fatalf("Failed to unmarshal chat_triggers.yaml: %v", err)
+		}
 	}
 
 	return Config{
-		Environment:        string(environment),
+		Environment:        string(getEnvironment()),
 		DatabaseURL:        databaseURLEnv,
 		RedisAddr:          redisAddrEnv,
 		RedisPassword:      redisPasswordEnv,

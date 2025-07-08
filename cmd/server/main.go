@@ -32,7 +32,7 @@ func main() {
 
 	cfg := config.Load()
 
-	if cfg.Environment == config.Production {
+	if cfg.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 

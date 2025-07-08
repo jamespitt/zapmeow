@@ -2,15 +2,15 @@ package handler
 
 import (
 	"net/http"
+	"zapmeow/api/model"
 	"zapmeow/api/response"
 	"zapmeow/api/service"
 
 	"github.com/gin-gonic/gin"
-	"go.mau.fi/whatsmeow/types"
 )
 
 type groupInfoResponse struct {
-	Info *types.GroupInfo `json:"info"`
+	Info *model.GroupInfo `json:"info"`
 }
 
 type getGroupInfoHandler struct {

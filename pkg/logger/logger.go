@@ -20,7 +20,7 @@ func Init() {
 		FullTimestamp: true,
 	})
 
-	if cfg.Environment == config.Production {
+	if cfg.Environment == "production" {
 		log.SetLevel(logrus.ErrorLevel)
 	}
 

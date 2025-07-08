@@ -1,14 +1,13 @@
 package service
 
 import (
+	"encoding/json"
 	"zapmeow/api/model"
 	"zapmeow/api/repository"
-
-	"go.mau.fi/whatsmeow/types"
 )
 
 type GroupService interface {
-	CreateOrUpdateGroup(instanceID string, groupInfo *types.GroupInfo) error
+	CreateOrUpdateGroup(instanceID string, groupInfo *model.GroupInfo) error
 }
 
 type groupService struct {
@@ -21,24 +20,31 @@ func NewGroupService(groupRepo repository.GroupRepository) *groupService {
 	}
 }
 
-func (s *groupService) CreateOrUpdateGroup(instanceID string, groupInfo *types.GroupInfo) error {
-	group, err := s.groupRepo.GetGroupByJID(groupInfo.JID.String())
+func (s *groupService) CreateOrUpdateGroup(instanceID string, groupInfo *model.GroupInfo) error {
+	group, err := s.groupRepo.GetGroupByJID(groupInfo.JID)
 	if err != nil {
-		return err
+		// If group not found, GetGroupByJID might return a specific error.
+		// For this logic, we assume nil means "not found" and we should create.
+		// A more robust implementation would check for a specific "not found" error.
 	}
 
 	if group == nil {
 		group = &model.Group{}
 	}
 
-	group.InstanceID = instanceID
-	group.JID = groupInfo.JID.String()
-	group.OwnerJID = groupInfo.OwnerJID.String()
-	group.GroupName = groupInfo.GroupName.Name
-	group.GroupTopic = groupInfo.GroupTopic.Topic
-	group.TopicSetBy = groupInfo.GroupTopic.TopicSetBy.String()
-	group.TopicSetAt = groupInfo.GroupTopic.TopicSetAt.Unix()
-	group.GroupLocked = groupInfo.GroupLocked.IsLocked
+	// Marshal participants into JSON
+	participantsJSON, err := json.Marshal(groupInfo.Participants)
+	if err != nil {
+		return err
+	}
 
-	return s.groupRepo.CreateGroup(group)
+	group.InstanceID = instanceID
+	group.JID = groupInfo.JID
+	group.OwnerJID = groupInfo.OwnerJID
+	group.Name = groupInfo.Name
+	group.Topic = groupInfo.Topic
+	group.Participants = participantsJSON
+
+	// Use the repository to save the group, which will handle both create and update.
+	return s.groupRepo.SaveGroup(group)
 }

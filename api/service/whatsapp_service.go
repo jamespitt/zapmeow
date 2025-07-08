@@ -44,8 +44,8 @@ type WhatsAppService interface {
 	SendDocumentMessage(instance *whatsapp.Instance, jid whatsapp.JID, documentURL *dataurl.DataURL, mimitype string, filename string) (whatsapp.MessageResponse, error)
 	SendImageMessage(instance *whatsapp.Instance, jid whatsapp.JID, imageURL *dataurl.DataURL, mimitype string) (whatsapp.MessageResponse, error)
 	GetContactInfo(instance *whatsapp.Instance, jid whatsapp.JID) (*whatsapp.ContactInfo, error)
-	GetGroupInfo(instance *whatsapp.Instance, groupID string) (*types.GroupInfo, error)
-	SyncGroups(instance *whatsapp.Instance) ([]*types.GroupInfo, error)
+	GetGroupInfo(instance *whatsapp.Instance, groupID string) (*model.GroupInfo, error)
+	SyncGroups(instance *whatsapp.Instance) ([]*model.GroupInfo, error)
 	ParseEventMessage(instance *whatsapp.Instance, message *events.Message) (whatsapp.Message, error)
 	IsOnWhatsApp(instance *whatsapp.Instance, phones []string) ([]whatsapp.IsOnWhatsAppResponse, error)
 }
@@ -66,26 +66,60 @@ func NewWhatsAppService(
 	}
 }
 
-func (w *whatsAppService) SyncGroups(instance *whatsapp.Instance) ([]*types.GroupInfo, error) {
+func (w *whatsAppService) SyncGroups(instance *whatsapp.Instance) ([]*model.GroupInfo, error) {
 	groups, err := w.whatsApp.GetJoinedGroups(instance)
 	if err != nil {
 		return nil, err
 	}
 
+	var result []*model.GroupInfo
 	for _, group := range groups {
-		err = w.groupService.CreateOrUpdateGroup(instance.ID, group)
+		participants := make([]model.Participant, len(group.Participants))
+		for i, p := range group.Participants {
+			participants[i] = model.Participant{
+				JID:          p.JID.String(),
+				IsAdmin:      p.IsAdmin,
+				IsSuperAdmin: p.IsSuperAdmin,
+			}
+		}
+
+		groupInfo := &model.GroupInfo{
+			JID:          group.JID.String(),
+			OwnerJID:     group.OwnerJID.String(),
+			Name:         group.Name,
+			Participants: participants,
+		}
+
+		err = w.groupService.CreateOrUpdateGroup(instance.ID, groupInfo)
 		if err != nil {
 			logger.Error("Failed to create or update group. ", err)
 		}
+		result = append(result, groupInfo)
 	}
 
-	return groups, nil
+	return result, nil
 }
 
-func (w *whatsAppService) GetGroupInfo(instance *whatsapp.Instance, groupID string) (*types.GroupInfo, error) {
-	groupInfo, err := w.whatsApp.GetGroupInfo(instance, groupID)
+func (w *whatsAppService) GetGroupInfo(instance *whatsapp.Instance, groupID string) (*model.GroupInfo, error) {
+	group, err := w.whatsApp.GetGroupInfo(instance, groupID)
 	if err != nil {
 		return nil, err
+	}
+
+	participants := make([]model.Participant, len(group.Participants))
+	for i, p := range group.Participants {
+		participants[i] = model.Participant{
+			JID:          p.JID.String(),
+			IsAdmin:      p.IsAdmin,
+			IsSuperAdmin: p.IsSuperAdmin,
+		}
+	}
+
+	groupInfo := &model.GroupInfo{
+		JID:          group.JID.String(),
+		OwnerJID:     group.OwnerJID.String(),
+		Name:         group.Name,
+		Participants: participants,
 	}
 
 	err = w.groupService.CreateOrUpdateGroup(instance.ID, groupInfo)

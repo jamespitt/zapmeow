@@ -131,7 +131,7 @@ func NewWhatsApp(databasePath string) *whatsApp {
 	cfg := config.Load()
 
 	var level = "DEBUG"
-	if cfg.Environment == config.Production {
+	if cfg.Environment == "production" {
 		level = "ERROR"
 	}
 	dbLog := waLog.Stdout("Database", level, true)
@@ -389,7 +389,7 @@ func (w *whatsApp) createClient(deviceStore *store.Device) *whatsmeow.Client {
 	cfg := config.Load()
 
 	var level = "DEBUG"
-	if cfg.Environment == config.Production {
+	if cfg.Environment == "production" {
 		level = "ERROR"
 	}
 	log := waLog.Stdout("Client", level, true)

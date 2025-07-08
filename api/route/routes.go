@@ -12,7 +12,7 @@ import (
 )
 
 func makeEngine(cfg config.Config) *gin.Engine {
-	if cfg.Environment == config.Production {
+	if cfg.Environment == "production" {
 		return gin.New()
 	}
 	return gin.Default()
