@@ -1,7 +1,7 @@
 data.db
 storage
-.env
-.env.production
+#.env
+#.env.production
 main
 .zapmeow
 credentials.json
