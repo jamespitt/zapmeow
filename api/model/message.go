@@ -15,6 +15,7 @@ type Message struct {
 	Timestamp  time.Time
 	Body       string
 	MediaType  string // text, image, ptt, audio, document
+	Mimetype   string
 	MediaPath  string
 	FromMe     bool
 }

@@ -403,11 +403,17 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 	)
 
 	if parsedEventMessage.MediaType != nil {
+		mimetype := *parsedEventMessage.Mimetype
+		if mimetype == "" && parsedEventMessage.MediaType.String() == "audio" {
+			mimetype = "audio/ogg"
+			logger.Info("Mimetype was empty for audio message, defaulting to 'audio/ogg'")
+		}
+
 		path, err := helper.SaveMedia(
 			instance.ID,
 			parsedEventMessage.MessageID,
 			*parsedEventMessage.Media,
-			*parsedEventMessage.Mimetype,
+			mimetype,
 		)
 
 		if err != nil {
@@ -415,6 +421,7 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 		}
 
 		message.MediaType = parsedEventMessage.MediaType.String()
+		message.Mimetype = mimetype
 		message.MediaPath = path
 	}
 

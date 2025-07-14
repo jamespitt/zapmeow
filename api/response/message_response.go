@@ -39,7 +39,10 @@ func NewMessageResponse(msg model.Message) Message {
 		if err != nil {
 			// logger.Error("Error reading the file. ", err)
 		} else {
-			mimetype := mime.TypeByExtension(filepath.Ext(msg.MediaPath))
+			mimetype := msg.Mimetype
+			if mimetype == "" {
+				mimetype = mime.TypeByExtension(filepath.Ext(msg.MediaPath))
+			}
 			base64 := base64.StdEncoding.EncodeToString(media)
 			data.MediaMimeType = mimetype
 			data.MediaBase64 = base64
