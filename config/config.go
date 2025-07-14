@@ -97,7 +97,8 @@ func Load() Config {
 		WebhookURL:         webhookURLEnv,
 		ExcludedSenderJIDs: fullChatConfig.ExcludedJIDs,
 		ChatTriggers:       fullChatConfig.Triggers,
-		RootDir:            storagePathEnv,
+		RootDir:            ".",
+		StoragePath:        storagePathEnv,
 	}
 }
 
