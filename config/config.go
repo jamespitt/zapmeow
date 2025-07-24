@@ -10,7 +10,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type Environment = uint
+type Environment uint
 
 const (
 	Development Environment = iota
@@ -36,6 +36,15 @@ type Config struct {
 type ChatTriggerConfig struct {
 	ChatID string `yaml:"chat_id"`
 	Script string `yaml:"script"`
+}
+
+func (e Environment) String() string {
+	switch e {
+	case Production:
+		return "production"
+	default:
+		return "development"
+	}
 }
 
 func Load() Config {
@@ -87,7 +96,7 @@ func Load() Config {
 	}
 
 	return Config{
-		Environment:        string(getEnvironment()),
+		Environment:        getEnvironment().String(),
 		DatabaseURL:        databaseURLEnv,
 		RedisAddr:          redisAddrEnv,
 		RedisPassword:      redisPasswordEnv,

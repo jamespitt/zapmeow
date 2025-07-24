@@ -63,7 +63,7 @@ func (m *mockAccountService) GetConnectedAccounts() ([]model.Account, error) {
 
 type mockGroupService struct{}
 
-func (m *mockGroupService) CreateOrUpdateGroup(instanceID string, groupInfo *types.GroupInfo) error {
+func (m *mockGroupService) CreateOrUpdateGroup(instanceID string, groupInfo *model.GroupInfo) error {
 	return nil
 } 
 
@@ -160,24 +160,31 @@ func TestHandleMessage_ChatTriggers(t *testing.T) {
 	if err := os.MkdirAll(dummyConfigDir, 0755); err != nil {
 		t.Fatalf("Failed to create dummy config dir: %v", err)
 	}
+	projectRoot := filepath.Join(wd, "../..")
+	testScriptRelativePath := "scripts/test_trigger_script.sh"
+	testScriptAbsolutePathForConfig := filepath.Join(projectRoot, testScriptRelativePath)
+
 	dummyChatTriggersFile := filepath.Join(dummyConfigDir, "chat_triggers.yaml")
-	if err := os.WriteFile(dummyChatTriggersFile, []byte("chat_triggers: []"), 0644); err != nil {
+	chatTriggersYAML := `
+chat_triggers:
+  - chat_id: "triggered_chat@s.whatsapp.net"
+    script: "` + testScriptAbsolutePathForConfig + `"
+  - chat_id: "another_chat@s.whatsapp.net"
+    script: "` + filepath.Join(projectRoot, "scripts/non_existent_script.sh") + `"
+`
+	if err := os.WriteFile(dummyChatTriggersFile, []byte(chatTriggersYAML), 0644); err != nil {
 		t.Fatalf("Failed to write dummy chat_triggers.yaml: %v", err)
 	}
 	defer os.RemoveAll(dummyConfigDir) // Clean up dummy config
 
 	logger.Init() // Initialize logger
 
-	projectRoot := filepath.Join(wd, "../..") // Navigate up to project root from api/service
-	testScriptRelativePath := "../../scripts/test_trigger_script.sh" // Path relative to api/service
-	// For config, we use absolute path derived from calculated projectRoot, to ensure it's always correct
-	testScriptAbsolutePathForConfig := filepath.Join(projectRoot, "scripts/test_trigger_script.sh") 
-
-	if _, err := os.Stat(filepath.Join(wd, testScriptRelativePath)); os.IsNotExist(err) {
-		t.Fatalf("Test script %s does not exist (calculated from wd: %s). Make sure it's in the /scripts directory and executable.", testScriptRelativePath, wd)
+	if _, err := os.Stat(testScriptAbsolutePathForConfig); os.IsNotExist(err) {
+		t.Fatalf("Test script %s does not exist. Make sure it's in the /scripts directory and executable.", testScriptAbsolutePathForConfig)
 	}
 
 	testAppConfig := config.Config{
+		RootDir: projectRoot,
 		ChatTriggers: []config.ChatTriggerConfig{
 			{ChatID: "triggered_chat@s.whatsapp.net", Script: testScriptAbsolutePathForConfig},
 			{ChatID: "another_chat@s.whatsapp.net", Script: filepath.Join(projectRoot, "scripts/non_existent_script.sh")},
@@ -372,7 +379,7 @@ func TestHandleMessage_ChatTriggers(t *testing.T) {
 			service.handleMessage(tt.instanceID, tt.event)
 
 			if tt.expectScriptRun {
-				time.Sleep(150 * time.Millisecond) 
+				time.Sleep(250 * time.Millisecond) 
 				content, err := os.ReadFile(outputFilePath)
 				if err != nil {
 					t.Fatalf("Expected script to run and create output file '%s', but got error: %v", outputFilePath, err)
@@ -384,7 +391,7 @@ func TestHandleMessage_ChatTriggers(t *testing.T) {
 					os.Remove(outputFilePath)
 				}
 			} else {
-				time.Sleep(50 * time.Millisecond)
+				time.Sleep(100 * time.Millisecond)
 				_, err := os.Stat(outputFilePath)
 				if !os.IsNotExist(err) {
 					content, _ := os.ReadFile(outputFilePath)

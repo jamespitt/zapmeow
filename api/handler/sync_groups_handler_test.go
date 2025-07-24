@@ -4,12 +4,12 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"zapmeow/api/model"
 	"zapmeow/pkg/whatsapp"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"go.mau.fi/whatsmeow/types"
 	"go.mau.fi/whatsmeow/types/events"
 	"github.com/vincent-petithory/dataurl"
 )
@@ -58,14 +58,14 @@ func (m *MockWhatsAppService) GetContactInfo(instance *whatsapp.Instance, jid wh
 	return args.Get(0).(*whatsapp.ContactInfo), args.Error(1)
 }
 
-func (m *MockWhatsAppService) GetGroupInfo(instance *whatsapp.Instance, groupID string) (*types.GroupInfo, error) {
+func (m *MockWhatsAppService) GetGroupInfo(instance *whatsapp.Instance, groupID string) (*model.GroupInfo, error) {
 	args := m.Called(instance, groupID)
-	return args.Get(0).(*types.GroupInfo), args.Error(1)
+	return args.Get(0).(*model.GroupInfo), args.Error(1)
 }
 
-func (m *MockWhatsAppService) SyncGroups(instance *whatsapp.Instance) ([]*types.GroupInfo, error) {
+func (m *MockWhatsAppService) SyncGroups(instance *whatsapp.Instance) ([]*model.GroupInfo, error) {
 	args := m.Called(instance)
-	return args.Get(0).([]*types.GroupInfo), args.Error(1)
+	return args.Get(0).([]*model.GroupInfo), args.Error(1)
 }
 
 func (m *MockWhatsAppService) ParseEventMessage(instance *whatsapp.Instance, message *events.Message) (whatsapp.Message, error) {
@@ -85,9 +85,9 @@ func TestSyncGroupsHandler(t *testing.T) {
 	handler := NewSyncGroupsHandler(mockService)
 
 	instance := &whatsapp.Instance{}
-	groups := []*types.GroupInfo{
+	groups := []*model.GroupInfo{
 		{
-			JID: types.NewJID("123", "g.us"),
+			JID: "123@g.us",
 		},
 	}
 

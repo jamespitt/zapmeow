@@ -2,7 +2,6 @@ package service
 
 import (
 	"os/exec"
-	"path/filepath" // Added for filepath.Base
 	"strings" // Ensure strings package is imported
 	"zapmeow/api/helper"
 	"zapmeow/api/model"
@@ -426,11 +425,12 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 	}
 
 	// Check for text message triggers
-	if parsedEventMessage.MediaType == nil && parsedEventMessage.Body != "" && !parsedEventMessage.FromMe { // Condition for a plain text message, not from me
+		if parsedEventMessage.MediaType == nil && parsedEventMessage.Body != "" && !parsedEventMessage.FromMe { // Condition for a plain text message, not from me
+		logger.Info("Text message trigger condition met")
 		// Check against global excluded sender JIDs first
 		isExcluded := false
 		for _, excludedJIDConfig := range w.app.Config.ExcludedSenderJIDs {
-			if parsedEventMessage.SenderJID == stripJIDSuffix(excludedJIDConfig) { // Compare with stripped JID from config
+			if parsedEventMessage.SenderJID == excludedJIDConfig {
 				isExcluded = true
 				logger.Info("Sender JID ", parsedEventMessage.SenderJID, " is globally excluded (config: ", excludedJIDConfig, "). Skipping chat triggers.")
 				break
@@ -438,18 +438,13 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 		}
 
 		if !isExcluded { // Only proceed if sender is not globally excluded
+			logger.Info("Sender not excluded")
 			chatJID := parsedEventMessage.ChatJID // This is already without suffix
 			messageBody := parsedEventMessage.Body
 
 			for _, trigger := range w.app.Config.ChatTriggers {
-				if stripJIDSuffix(trigger.ChatID) == chatJID { // Compare with stripped JID from config
-					logger.Info("Found chat trigger for ChatID ", chatJID, " (config: ", trigger.ChatID, "), script: ", trigger.Script)
-					// Pass the Python script name as the first arg to run.sh, then original ChatJID and messageBody
-					scriptName := filepath.Base(trigger.Script)
-					// Arguments for run.sh: script_to_run.py, arg1_for_script, arg2_for_script, ...
-					// The Python scripts themselves no longer use these command-line args for recipient JID.
-					// They are passed for potential logging or other uses within the script if ever needed.
-					cmd := exec.Command(filepath.Join(w.app.Config.RootDir, "tasks", "run.sh"), scriptName, parsedEventMessage.ChatJID, messageBody)
+				if trigger.ChatID == chatJID { // Compare with stripped JID from config
+					cmd := exec.Command(trigger.Script, parsedEventMessage.ChatJID, messageBody)
 					output, scriptErr := cmd.CombinedOutput()
 
 					if scriptErr != nil {

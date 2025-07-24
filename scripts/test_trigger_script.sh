@@ -1,4 +1,5 @@
 #!/bin/bash
-# Test script for chat triggers
-echo "$1 $2" > /tmp/test_trigger_output.txt
-exit 0
+# This is a test script for zapmeow chat triggers.
+# It writes the arguments it receives to a temporary file.
+
+echo "$@" > /tmp/test_trigger_output.txt
