@@ -2,8 +2,6 @@ module zapmeow
 
 go 1.23.0
 
-toolchain go1.23.6
-
 require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/joho/godotenv v1.5.1

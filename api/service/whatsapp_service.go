@@ -430,7 +430,7 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 		// Check against global excluded sender JIDs first
 		isExcluded := false
 		for _, excludedJIDConfig := range w.app.Config.ExcludedSenderJIDs {
-			if parsedEventMessage.SenderJID == excludedJIDConfig {
+			if parsedEventMessage.SenderJID == stripJIDSuffix(excludedJIDConfig) {
 				isExcluded = true
 				logger.Info("Sender JID ", parsedEventMessage.SenderJID, " is globally excluded (config: ", excludedJIDConfig, "). Skipping chat triggers.")
 				break
