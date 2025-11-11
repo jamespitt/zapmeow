@@ -1,5 +1,6 @@
 excluded_sender_jids:
   - "353870985961@s.whatsapp.net"
+  - "267907829350636@s.whatsapp.net"
   - "another_excluded_jid@s.whatsapp.net"
 
 chat_triggers: [] # No direct script triggers from Go anymore for these
