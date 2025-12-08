@@ -281,7 +281,7 @@ func (w *whatsApp) SendDocumentMessage(
 }
 
 func (w *whatsApp) IsOnWhatsApp(instance *Instance, phones []string) ([]IsOnWhatsAppResponse, error) {
-	isOnWhatsAppResponse, err := instance.Client.IsOnWhatsApp(phones)
+	isOnWhatsAppResponse, err := instance.Client.IsOnWhatsApp(context.Background(), phones)
 	if err != nil {
 		return nil, err
 	}
@@ -311,7 +311,7 @@ func (w *whatsApp) sendMessage(instance *Instance, jid JID, message *waProto.Mes
 }
 
 func (w *whatsApp) GetContactInfo(instance *Instance, jid JID) (*ContactInfo, error) {
-	userInfo, err := instance.Client.GetUserInfo([]JID{jid})
+	userInfo, err := instance.Client.GetUserInfo(context.Background(), []JID{jid})
 	if err != nil {
 		return nil, err
 	}
@@ -322,6 +322,7 @@ func (w *whatsApp) GetContactInfo(instance *Instance, jid JID) (*ContactInfo, er
 	}
 
 	profilePictureInfo, _ := instance.Client.GetProfilePictureInfo(
+		context.Background(),
 		jid,
 		&whatsmeow.GetProfilePictureParams{},
 	)
