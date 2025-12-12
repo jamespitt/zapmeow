@@ -46,6 +46,12 @@ func NewSendTextMessageHandler(
 //	@Success		200	{object}	sendTextMessageResponse	"Message Send Response"
 //	@Router			/{instanceId}/chat/send/text [post]
 func (h *sendTextMessageHandler) Handler(c *gin.Context) {
+	defer func() {
+		if r := recover(); r != nil {
+			response.ErrorResponse(c, http.StatusInternalServerError, "An internal error occurred")
+		}
+	}()
+
 	instanceID := c.Param("instanceId")
 	instance, err := h.whatsAppService.GetInstance(instanceID)
 	if err != nil {
