@@ -120,7 +120,7 @@ func (q *historySyncWorker) processMessages(evt *waProto.HistorySync, account *m
 	var messages []model.Message
 
 	for _, conv := range evt.GetConversations() {
-		chatJID, _ := types.ParseJID(conv.GetId())
+		chatJID, _ := types.ParseJID(conv.GetID())
 
 		count, err := q.messageService.CountChatMessages(account.InstanceID, chatJID.User)
 		if err != nil {

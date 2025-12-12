@@ -149,11 +149,11 @@ func (w *whatsApp) GetGroupInfo(instance *Instance, groupID string) (*types.Grou
 		return nil, errors.New("invalid group id")
 	}
 
-	return instance.Client.GetGroupInfo(jid)
+	return instance.Client.GetGroupInfo(context.Background(), jid)
 }
 
 func (w *whatsApp) GetJoinedGroups(instance *Instance) ([]*types.GroupInfo, error) {
-	return instance.Client.GetJoinedGroups()
+	return instance.Client.GetJoinedGroups(context.Background())
 }
 
 func (w *whatsApp) CreateInstance(id string) *Instance {
@@ -296,7 +296,7 @@ func (w *whatsApp) SendDocumentMessage(
 }
 
 func (w *whatsApp) IsOnWhatsApp(instance *Instance, phones []string) ([]IsOnWhatsAppResponse, error) {
-	isOnWhatsAppResponse, err := instance.Client.IsOnWhatsApp(phones)
+	isOnWhatsAppResponse, err := instance.Client.IsOnWhatsApp(context.Background(), phones)
 	if err != nil {
 		return nil, err
 	}
@@ -326,7 +326,7 @@ func (w *whatsApp) sendMessage(instance *Instance, jid JID, message *waProto.Mes
 }
 
 func (w *whatsApp) GetContactInfo(instance *Instance, jid JID) (*ContactInfo, error) {
-	userInfo, err := instance.Client.GetUserInfo([]JID{jid})
+	userInfo, err := instance.Client.GetUserInfo(context.Background(), []JID{jid})
 	if err != nil {
 		return nil, err
 	}
@@ -337,6 +337,7 @@ func (w *whatsApp) GetContactInfo(instance *Instance, jid JID) (*ContactInfo, er
 	}
 
 	profilePictureInfo, _ := instance.Client.GetProfilePictureInfo(
+		context.Background(),
 		jid,
 		&whatsmeow.GetProfilePictureParams{},
 	)
