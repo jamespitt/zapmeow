@@ -91,6 +91,7 @@ func SetupRouter(
 
 	group.GET("/accounts", getAccountsHandler.Handler)
 	group.GET("/:instanceId/qrcode", getQrCodeHandler.Handler)
+	group.GET("/:instanceId/qrcode/page", getQrCodePageHandler.Handler)
 	group.GET("/:instanceId/status", getStatusHandler.Handler)
 	group.GET("/:instanceId/profile", getProfileInfoHandler.Handler)
 	group.GET("/:instanceId/contact/info", getContactInfoHandler.Handler)
