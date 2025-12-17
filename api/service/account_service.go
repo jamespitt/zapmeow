@@ -11,6 +11,7 @@ import (
 type AccountService interface {
 	CreateAccount(account *model.Account) error
 	GetConnectedAccounts() ([]model.Account, error)
+	GetAllAccounts() ([]model.Account, error)
 	GetAccountByInstanceID(instanceID string) (*model.Account, error)
 	UpdateAccount(instanceID string, data map[string]interface{}) error
 	DeleteAccountMessages(instanceID string) error
@@ -34,6 +35,10 @@ func (a *accountService) CreateAccount(account *model.Account) error {
 
 func (a *accountService) GetConnectedAccounts() ([]model.Account, error) {
 	return a.accountRepo.GetConnectedAccounts()
+}
+
+func (a *accountService) GetAllAccounts() ([]model.Account, error) {
+	return a.accountRepo.GetAllAccounts()
 }
 
 func (a *accountService) GetAccountByInstanceID(instanceID string) (*model.Account, error) {

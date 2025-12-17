@@ -10,6 +10,7 @@ import (
 type AccountRepository interface {
 	CreateAccount(account *model.Account) error
 	GetConnectedAccounts() ([]model.Account, error)
+	GetAllAccounts() ([]model.Account, error)
 	GetAccountByInstanceID(instanceID string) (*model.Account, error)
 	UpdateAccount(instanceID string, data map[string]interface{}) error
 }
@@ -29,6 +30,12 @@ func (repo *accountRepository) CreateAccount(account *model.Account) error {
 func (repo *accountRepository) GetConnectedAccounts() ([]model.Account, error) {
 	var accounts []model.Account
 	repo.database.Client().Where("status = ?", "CONNECTED").Find(&accounts)
+	return accounts, nil
+}
+
+func (repo *accountRepository) GetAllAccounts() ([]model.Account, error) {
+	var accounts []model.Account
+	repo.database.Client().Find(&accounts)
 	return accounts, nil
 }
 

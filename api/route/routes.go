@@ -33,6 +33,11 @@ func SetupRouter(
 		messageService,
 		accountService,
 	)
+	getQrCodePageHandler := handler.NewGetQrCodePageHandler(
+		app,
+		whatsAppService,
+		accountService,
+	)
 	logoutHandler := handler.NewLogoutHandler(
 		app,
 		whatsAppService,
@@ -78,9 +83,13 @@ func SetupRouter(
 	syncGroupsHandler := handler.NewSyncGroupsHandler(
 		whatsAppService,
 	)
+	getAccountsHandler := handler.NewGetAccountsHandler(
+		accountService,
+	)
 
 	group := router.Group("/api")
 
+	group.GET("/accounts", getAccountsHandler.Handler)
 	group.GET("/:instanceId/qrcode", getQrCodeHandler.Handler)
 	group.GET("/:instanceId/status", getStatusHandler.Handler)
 	group.GET("/:instanceId/profile", getProfileInfoHandler.Handler)
