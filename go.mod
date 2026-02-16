@@ -1,6 +1,6 @@
 module zapmeow
 
-go 1.24.0
+go 1.25.0
 
 require (
 	github.com/gin-gonic/gin v1.9.1
@@ -12,8 +12,8 @@ require (
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.3
 	github.com/vincent-petithory/dataurl v1.0.0
-	go.mau.fi/whatsmeow v0.0.0-20251205211405-fd6170ac96e5
-	google.golang.org/protobuf v1.36.10
+	go.mau.fi/whatsmeow v0.0.0-20260216124546-34b971e686b6
+	google.golang.org/protobuf v1.36.11
 	gorm.io/datatypes v1.2.6
 	gorm.io/driver/sqlite v1.5.5
 	gorm.io/gorm v1.30.0
@@ -37,18 +37,18 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
-	github.com/mattn/go-sqlite3 v1.14.32 // indirect
+	github.com/mattn/go-sqlite3 v1.14.34 // indirect
 	github.com/onsi/ginkgo v1.16.5 // indirect
 	github.com/onsi/gomega v1.27.10 // indirect
-	github.com/petermattis/goid v0.0.0-20250904145737-900bdf8bb490 // indirect
+	github.com/petermattis/goid v0.0.0-20260113132338-7c7de50cc741 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rs/zerolog v1.34.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
-	github.com/vektah/gqlparser/v2 v2.5.27 // indirect
-	go.mau.fi/util v0.9.3 // indirect
-	golang.org/x/exp v0.0.0-20251113190631-e25ba8c21ef6 // indirect
-	golang.org/x/term v0.37.0 // indirect
-	golang.org/x/tools v0.39.0 // indirect
+	github.com/vektah/gqlparser/v2 v2.5.31 // indirect
+	go.mau.fi/util v0.9.6 // indirect
+	golang.org/x/exp v0.0.0-20260212183809-81e46e3db34a // indirect
+	golang.org/x/term v0.40.0 // indirect
+	golang.org/x/tools v0.42.0 // indirect
 	gorm.io/driver/mysql v1.5.6 // indirect
 	rsc.io/qr v0.2.0 // indirect
 )
@@ -64,7 +64,6 @@ require (
 	github.com/go-playground/validator/v10 v10.19.0 // indirect
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/goccy/go-json v0.10.2 // indirect
-	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
@@ -76,9 +75,9 @@ require (
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	go.mau.fi/libsignal v0.2.1 // indirect
 	golang.org/x/arch v0.7.0 // indirect
-	golang.org/x/crypto v0.44.0 // indirect
-	golang.org/x/net v0.47.0 // indirect
-	golang.org/x/sys v0.38.0 // indirect
-	golang.org/x/text v0.31.0 // indirect
+	golang.org/x/crypto v0.48.0 // indirect
+	golang.org/x/net v0.50.0 // indirect
+	golang.org/x/sys v0.41.0 // indirect
+	golang.org/x/text v0.34.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1
 )

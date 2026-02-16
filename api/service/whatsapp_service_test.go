@@ -61,6 +61,10 @@ func (m *mockAccountService) GetConnectedAccounts() ([]model.Account, error) {
 	return nil, nil
 }
 
+func (m *mockAccountService) GetAllAccounts() ([]model.Account, error) {
+	return nil, nil
+}
+
 type mockGroupService struct{}
 
 func (m *mockGroupService) CreateOrUpdateGroup(instanceID string, groupInfo *model.GroupInfo) error {
@@ -111,8 +115,8 @@ func (m *mockWhatsApp) ParseEventMessage(instance *whatsapp.Instance, message *e
 	parsedMsg := whatsapp.Message{
 		InstanceID: instance.ID,
 		MessageID:  message.Info.ID,
-		ChatJID:    message.Info.Chat.String(),
-		SenderJID:  message.Info.Sender.String(),
+		ChatJID:    message.Info.Chat.User,
+		SenderJID:  message.Info.Sender.User,
 		Timestamp:  message.Info.Timestamp, 
 		FromMe:     message.Info.IsFromMe,
 	}
@@ -167,9 +171,9 @@ func TestHandleMessage_ChatTriggers(t *testing.T) {
 	dummyChatTriggersFile := filepath.Join(dummyConfigDir, "chat_triggers.yaml")
 	chatTriggersYAML := `
 chat_triggers:
-  - chat_id: "triggered_chat@s.whatsapp.net"
+  - chat_id: "triggered_chat"
     script: "` + testScriptAbsolutePathForConfig + `"
-  - chat_id: "another_chat@s.whatsapp.net"
+  - chat_id: "another_chat"
     script: "` + filepath.Join(projectRoot, "scripts/non_existent_script.sh") + `"
 `
 	if err := os.WriteFile(dummyChatTriggersFile, []byte(chatTriggersYAML), 0644); err != nil {
@@ -186,8 +190,8 @@ chat_triggers:
 	testAppConfig := config.Config{
 		RootDir: projectRoot,
 		ChatTriggers: []config.ChatTriggerConfig{
-			{ChatID: "triggered_chat@s.whatsapp.net", Script: testScriptAbsolutePathForConfig},
-			{ChatID: "another_chat@s.whatsapp.net", Script: filepath.Join(projectRoot, "scripts/non_existent_script.sh")},
+			{ChatID: "triggered_chat", Script: testScriptAbsolutePathForConfig},
+			{ChatID: "another_chat", Script: filepath.Join(projectRoot, "scripts/non_existent_script.sh")},
 		},
 		ExcludedSenderJIDs: []string{"global_exclude@s.whatsapp.net", "353870985961@s.whatsapp.net"}, // Added global exclusions for test
 		WebhookURL: "http://localhost:9090/webhook", // Ensure WebhookURL is set in testAppConfig
@@ -240,7 +244,7 @@ chat_triggers:
 				Message: &waProto.Message{Conversation: proto.String("Hello trigger")},
 			},
 			expectScriptRun:  true,
-			expectedOutput: "triggered_chat@s.whatsapp.net Hello trigger",
+			expectedOutput: "triggered_chat Hello trigger",
 			cleanupOutputFile: true,
 		},
 		{
@@ -365,7 +369,7 @@ chat_triggers:
 				Message: &waProto.Message{Conversation: proto.String("Hello from allowed JID")},
 			},
 			expectScriptRun:   true,
-			expectedOutput:  "triggered_chat@s.whatsapp.net Hello from allowed JID",
+			expectedOutput:  "triggered_chat Hello from allowed JID",
 			cleanupOutputFile: true,
 		},
 	}
