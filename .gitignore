@@ -1,0 +1,36 @@
+data.db
+storage
+#.env
+#.env.production
+main
+.zapmeow
+credentials.json
+credentials_personal.json
+.gemini
+google3
+Google Stuff
+*.json
+.json
+.obsidian
+.obsidian/
+obs/plugins
+Projects/Self Improvement/ADHD and Exec Function
+__pycache__
+.swp
+tasks/*.json
+tasks/*.json
+tasks/token_personal.json
+tasks/token_work.json
+tasks/.venv
+token_personal.json
+token_personal.json
+token_work.json
+token_work.json
+.trach
+.trash
+.venv
+credentials.json
+credentials_personal.json
+token_personal.json
+token_work.json
+zapmeow.db
