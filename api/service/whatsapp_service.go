@@ -1,6 +1,7 @@
 package service
 
 import (
+	"os"
 	"os/exec"
 	"strings" // Ensure strings package is imported
 	"zapmeow/api/helper"
@@ -12,6 +13,7 @@ import (
 	"zapmeow/pkg/whatsapp"
 	"zapmeow/pkg/zapmeow"
 
+	"github.com/mdp/qrterminal/v3"
 	"github.com/vincent-petithory/dataurl"
 	"go.mau.fi/whatsmeow/types"
 	"go.mau.fi/whatsmeow/types/events"
@@ -198,6 +200,15 @@ func (w *whatsAppService) GetInstance(instanceID string) (*whatsapp.Instance, er
 		switch event {
 		case "code":
 			{
+				// Log the QR code to the terminal
+				logger.Info("Generating QR Code for instance: ", instanceID)
+				qrterminal.GenerateWithConfig(code, qrterminal.Config{
+					Level:     qrterminal.L,
+					Writer:    os.Stdout,
+					BlackChar: qrterminal.BLACK,
+					WhiteChar: qrterminal.WHITE,
+				})
+
 				err = w.accountService.UpdateAccount(instanceID, map[string]interface{}{
 					"QrCode":    code,
 					"Status":    "UNPAIRED",
