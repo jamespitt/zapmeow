@@ -480,6 +480,7 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 	}
 
 	for _, webhookURL := range w.app.Config.WebhookURLs {
+		logger.Info("Trying to send webhook ", webhookURL)
 		err = http.Request(webhookURL, body)
 		if err != nil {
 			logger.Error("Failed to send webhook request to ", webhookURL, ". ", err)

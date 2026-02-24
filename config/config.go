@@ -79,7 +79,13 @@ func Load() Config {
 
 	webhookURLs := []string{}
 	if webhookURLEnv != "" {
-		webhookURLs = strings.Split(webhookURLEnv, ",")
+		urls := strings.Split(webhookURLEnv, ",")
+		for _, u := range urls {
+			trimmed := strings.TrimSpace(u)
+			if trimmed != "" {
+				webhookURLs = append(webhookURLs, trimmed)
+			}
+		}
 	}
 
 	// Load chat triggers
