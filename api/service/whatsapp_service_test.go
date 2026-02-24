@@ -194,7 +194,7 @@ chat_triggers:
 			{ChatID: "another_chat", Script: filepath.Join(projectRoot, "scripts/non_existent_script.sh")},
 		},
 		ExcludedSenderJIDs: []string{"global_exclude@s.whatsapp.net", "353870985961@s.whatsapp.net"}, // Added global exclusions for test
-		WebhookURL: "http://localhost:9090/webhook", // Ensure WebhookURL is set in testAppConfig
+		WebhookURLs: []string{"http://localhost:9090/webhook"}, // Ensure WebhookURLs is set in testAppConfig
 	}
 	appInstances := new(sync.Map)
 

@@ -25,7 +25,7 @@ type Config struct {
 	Port               string
 	HistorySync        bool
 	MaxMessageSync     int
-	WebhookURL         string
+	WebhookURLs        []string
 	ExcludedSenderJIDs []string
 	ChatTriggers       []ChatTriggerConfig
 	RootDir            string
@@ -77,6 +77,11 @@ func Load() Config {
 		log.Fatal(err)
 	}
 
+	webhookURLs := []string{}
+	if webhookURLEnv != "" {
+		webhookURLs = strings.Split(webhookURLEnv, ",")
+	}
+
 	// Load chat triggers
 	chatTriggersData, err := os.ReadFile("config/chat_triggers.yaml")
 	if err != nil {
@@ -103,7 +108,7 @@ func Load() Config {
 		Port:               portEnv,
 		HistorySync:        historySync,
 		MaxMessageSync:     maxMessageSync,
-		WebhookURL:         webhookURLEnv,
+		WebhookURLs:        webhookURLs,
 		ExcludedSenderJIDs: fullChatConfig.ExcludedJIDs,
 		ChatTriggers:       fullChatConfig.Triggers,
 		RootDir:            ".",

@@ -53,7 +53,7 @@ chat_triggers:
 
 	// Set dummy environment variables required by Load()
 	os.Setenv("STORAGE_PATH", "/tmp")
-	os.Setenv("WEBHOOK_URL", "http://localhost")
+	os.Setenv("WEBHOOK_URL", "http://localhost,http://localhost:8002")
 	os.Setenv("DATABASE_PATH", "/tmp/db.sqlite")
 	os.Setenv("REDIS_ADDR", "localhost:6379")
 	os.Setenv("REDIS_PASSWORD", "")
@@ -62,8 +62,12 @@ chat_triggers:
 	os.Setenv("MAX_MESSAGE_SYNC", "10")
 	os.Setenv("ENVIRONMENT", "development")
 
-
 	cfg := Load()
+
+	expectedWebhookURLs := []string{"http://localhost", "http://localhost:8002"}
+	if !reflect.DeepEqual(cfg.WebhookURLs, expectedWebhookURLs) {
+		t.Errorf("Load() WebhookURLs = %v, want %v", cfg.WebhookURLs, expectedWebhookURLs)
+	}
 
 	expectedTriggers := []ChatTriggerConfig{
 		{ChatID: "chat1@s.whatsapp.net", Script: "/scripts/script1.sh"},

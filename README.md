@@ -38,7 +38,7 @@ Incoming messages are processed by an event handler within the `whatsappService`
 1.  The message is parsed.
 2.  If the message contains media (image, audio, document), the media data is saved to disk using the `helper.SaveMedia` function.
 3.  The message details, including the path to the saved media file (if applicable), are stored in the database.
-4.  A webhook request is sent to the configured `WebhookURL` with the message details.
+4.  A webhook request is sent to the configured `WebhookURLs` with the message details.
 
 ### Configuration
 
@@ -47,7 +47,7 @@ Configuration is loaded from the `.env` file using the `config` package. Key con
 -   `DATABASE_URL`: Database connection string.
 -   `REDIS_URL`: Redis connection string for the queue.
 -   `STORAGE_PATH`: **The directory where received media files will be saved.** Ensure this directory has appropriate write permissions.
--   `WEBHOOK_URL`: The URL where incoming message notifications will be sent.
+-   `WEBHOOK_URL`: The URL where incoming message notifications will be sent. Can be a comma-separated list for multiple webhooks.
 -   `HISTORY_SYNC`: Enable or disable history synchronization.
 
 ### Getting Started
