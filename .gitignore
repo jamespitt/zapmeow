@@ -34,3 +34,7 @@ credentials_personal.json
 token_personal.json
 token_work.json
 zapmeow.db
+main
+server
+zapmeow
+*.oga
