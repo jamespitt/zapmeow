@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"os"
 	"os/exec"
 	"strings" // Ensure strings package is imported
@@ -393,6 +394,17 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 		return
 	}
 
+	if evt.Info.Sender.Server == types.HiddenUserServer {
+		if pn, err := w.resolveLID(parsedEventMessage.SenderJID); err == nil {
+			parsedEventMessage.SenderJID = pn
+		}
+	}
+	if evt.Info.Chat.Server == types.HiddenUserServer {
+		if pn, err := w.resolveLID(parsedEventMessage.ChatJID); err == nil {
+			parsedEventMessage.ChatJID = pn
+		}
+	}
+
 	message := model.Message{
 		SenderJID:  parsedEventMessage.SenderJID,
 		ChatJID:    parsedEventMessage.ChatJID,
@@ -497,4 +509,16 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 			logger.Error("Failed to send webhook request to ", webhookURL, ". ", err)
 		}
 	}
+}
+
+func (w *whatsAppService) resolveLID(lid string) (string, error) {
+	var pn string
+	result := w.app.Database.Client().Raw("SELECT pn FROM whatsmeow_lid_map WHERE lid = ?", lid).Scan(&pn)
+	if result.Error != nil {
+		return "", result.Error
+	}
+	if pn == "" {
+		return "", errors.New("LID not found")
+	}
+	return pn, nil
 }
