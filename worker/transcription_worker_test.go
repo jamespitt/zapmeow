@@ -6,6 +6,7 @@ import (
 	"testing"
 	"zapmeow/api/model"
 	"zapmeow/api/queue"
+	"zapmeow/api/service"
 	"zapmeow/config"
 	"zapmeow/pkg/logger"
 	"zapmeow/pkg/zapmeow"
@@ -72,6 +73,18 @@ func (m *mockQueue) Dequeue(_ string) ([]byte, error) {
 	return data, nil
 }
 
+// stubMessageService satisfies service.MessageService with no-op methods.
+type stubMessageService struct{}
+
+func (s *stubMessageService) CreateMessage(_ *model.Message) error                            { return nil }
+func (s *stubMessageService) CreateMessages(_ *[]model.Message) error                         { return nil }
+func (s *stubMessageService) GetChatMessages(_, _ string) (*[]model.Message, error)           { return nil, nil }
+func (s *stubMessageService) GetMessageByMessageID(_, _ string) (*model.Message, error)       { return nil, nil }
+func (s *stubMessageService) CountChatMessages(_, _ string) (int64, error)                    { return 0, nil }
+func (s *stubMessageService) DeleteMessagesByInstanceID(_ string) error                       { return nil }
+
+var _ service.MessageService = (*stubMessageService)(nil)
+
 func newTestWorker(mq *mockQueue, svc *mockTranscriptionService) (*transcriptionWorker, queue.TranscriptionQueue) {
 	app := &zapmeow.ZapMeow{
 		Queue: mq,
@@ -80,7 +93,7 @@ func newTestWorker(mq *mockQueue, svc *mockTranscriptionService) (*transcription
 			WebhookURLs:            []string{},
 		},
 	}
-	w := NewTranscriptionWorker(app, svc)
+	w := NewTranscriptionWorker(app, svc, &stubMessageService{})
 	q := queue.NewTranscriptionQueue(app)
 	return w, q
 }

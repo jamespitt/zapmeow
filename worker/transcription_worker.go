@@ -7,6 +7,7 @@ import (
 	"time"
 	"zapmeow/api/model"
 	"zapmeow/api/queue"
+	"zapmeow/api/response"
 	"zapmeow/api/service"
 	"zapmeow/pkg/http"
 	"zapmeow/pkg/logger"
@@ -18,6 +19,7 @@ var whisperTimestampRegex = regexp.MustCompile(`^\[[\d:\.]+\s*-->\s*[\d:\.]+\]\s
 type transcriptionWorker struct {
 	app                  *zapmeow.ZapMeow
 	transcriptionService service.TranscriptionService
+	messageService       service.MessageService
 }
 
 type TranscriptionWorker interface {
@@ -27,10 +29,12 @@ type TranscriptionWorker interface {
 func NewTranscriptionWorker(
 	app *zapmeow.ZapMeow,
 	transcriptionService service.TranscriptionService,
+	messageService service.MessageService,
 ) *transcriptionWorker {
 	return &transcriptionWorker{
 		app:                  app,
 		transcriptionService: transcriptionService,
+		messageService:       messageService,
 	}
 }
 
@@ -117,12 +121,18 @@ func (w *transcriptionWorker) sendWebhook(instanceID, messageID, text, status st
 	body := map[string]interface{}{
 		"instanceId": instanceID,
 		"transcription": map[string]interface{}{
-			"messageId":  messageID,
-			"instanceId": instanceID,
-			"text":       text,
-			"status":     status,
+			"text":   text,
+			"status": status,
 		},
 	}
+
+	msg, err := w.messageService.GetMessageByMessageID(instanceID, messageID)
+	if err != nil {
+		logger.Error("Failed to look up message for transcription webhook. ", err)
+	} else if msg != nil {
+		body["message"] = response.NewMessageResponse(*msg)
+	}
+
 	for _, webhookURL := range w.app.Config.WebhookURLs {
 		if err := http.Request(webhookURL, body); err != nil {
 			logger.Error("Failed to send transcription webhook to ", webhookURL, ". ", err)

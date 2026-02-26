@@ -58,9 +58,12 @@ func (m *mockMessageService) GetChatMessages(instanceID string, chatJID string) 
 func (m *mockMessageService) CountChatMessages(instanceID string, chatJID string) (int64, error) {
 	return 0, nil
 } 
+func (m *mockMessageService) GetMessageByMessageID(instanceID string, messageID string) (*model.Message, error) {
+	return nil, nil
+}
 func (m *mockMessageService) DeleteMessagesByInstanceID(instanceID string) error {
 	return nil
-} 
+}
 
 // mockAccountService implements AccountService for testing
 type mockAccountService struct{}

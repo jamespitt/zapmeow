@@ -9,6 +9,7 @@ type MessageService interface {
 	CreateMessage(message *model.Message) error
 	CreateMessages(messages *[]model.Message) error
 	GetChatMessages(instanceID string, chatJID string) (*[]model.Message, error)
+	GetMessageByMessageID(instanceID string, messageID string) (*model.Message, error)
 	CountChatMessages(instanceID string, chatJID string) (int64, error)
 	DeleteMessagesByInstanceID(instanceID string) error
 }
@@ -29,6 +30,10 @@ func (m *messageService) CreateMessage(message *model.Message) error {
 
 func (m *messageService) CreateMessages(messages *[]model.Message) error {
 	return m.messageRep.CreateMessages(messages)
+}
+
+func (m *messageService) GetMessageByMessageID(instanceID string, messageID string) (*model.Message, error) {
+	return m.messageRep.GetMessageByMessageID(instanceID, messageID)
 }
 
 func (m *messageService) GetChatMessages(instanceID string, chatJID string) (*[]model.Message, error) {

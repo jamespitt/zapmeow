@@ -9,6 +9,7 @@ type MessageRepository interface {
 	CreateMessage(message *model.Message) error
 	CreateMessages(messages *[]model.Message) error
 	GetChatMessages(instanceID string, chatJID string) (*[]model.Message, error)
+	GetMessageByMessageID(instanceID string, messageID string) (*model.Message, error)
 	CountChatMessages(instanceID string, chatJID string) (int64, error)
 	DeleteMessagesByInstanceID(instanceID string) error
 }
@@ -35,6 +36,14 @@ func (repo *messageRepository) CountChatMessages(instanceID string, chatJID stri
 		return 0, result.Error
 	}
 	return count, nil
+}
+
+func (repo *messageRepository) GetMessageByMessageID(instanceID string, messageID string) (*model.Message, error) {
+	var message model.Message
+	if result := repo.database.Client().Where("instance_id = ? AND message_id = ?", instanceID, messageID).First(&message); result.Error != nil {
+		return nil, result.Error
+	}
+	return &message, nil
 }
 
 func (repo *messageRepository) GetChatMessages(instanceID string, chatJID string) (*[]model.Message, error) {

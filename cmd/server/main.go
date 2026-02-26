@@ -86,7 +86,7 @@ func main() {
 	)
 
 	// workers
-	transcriptionWorker := worker.NewTranscriptionWorker(app, transcriptionService)
+	transcriptionWorker := worker.NewTranscriptionWorker(app, transcriptionService, messageService)
 
 	historySyncWorker := worker.NewHistorySyncWorker(
 		app,
