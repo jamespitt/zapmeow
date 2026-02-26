@@ -19,7 +19,7 @@ func NewTranscriptionRepository(database database.Database) *transcriptionReposi
 }
 
 func (r *transcriptionRepository) CreateTranscription(t *model.Transcription) error {
-	return r.database.Client().Create(t).Error
+	return r.database.Client().Where("message_id = ?", t.MessageID).FirstOrCreate(t).Error
 }
 
 func (r *transcriptionRepository) UpdateTranscription(id uint, updates map[string]interface{}) error {

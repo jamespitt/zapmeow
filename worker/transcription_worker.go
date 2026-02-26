@@ -75,7 +75,7 @@ func (w *transcriptionWorker) processTranscription(q queue.TranscriptionQueue) e
 		logger.Error("Whisper transcription failed for message ", data.MessageID, ". ", transcribeErr)
 		status = "failed"
 	} else {
-		updates["TranscribedText"] = text
+		updates["Text"] = text
 	}
 	updates["Status"] = status
 

@@ -434,7 +434,7 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 		message.Mimetype = mimetype
 		message.MediaPath = path
 
-		if (message.MediaType == "audio" || message.MediaType == "ptt") && w.app.Queue != nil {
+		if (message.MediaType == "audio" || message.MediaType == "ptt") && w.app.Queue != nil && !parsedEventMessage.FromMe {
 			tq := queue.NewTranscriptionQueue(w.app)
 			if enqueueErr := tq.Enqueue(queue.TranscriptionQueueData{
 				MessageID:  parsedEventMessage.MessageID,
