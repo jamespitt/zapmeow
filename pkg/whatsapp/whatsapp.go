@@ -10,7 +10,7 @@ import (
 
 	"github.com/vincent-petithory/dataurl"
 	"go.mau.fi/whatsmeow"
-	waProto "go.mau.fi/whatsmeow/binary/proto"
+	waE2E "go.mau.fi/whatsmeow/proto/waE2E"
 	"go.mau.fi/whatsmeow/store"
 	"go.mau.fi/whatsmeow/store/sqlstore"
 	"go.mau.fi/whatsmeow/types"
@@ -226,8 +226,8 @@ func (w *whatsApp) InitInstance(instance *Instance, qrcodeHandler func(evt strin
 }
 
 func (w *whatsApp) SendTextMessage(instance *Instance, jid JID, text string) (MessageResponse, error) {
-	message := &waProto.Message{
-		ExtendedTextMessage: &waProto.ExtendedTextMessage{
+	message := &waE2E.Message{
+		ExtendedTextMessage: &waE2E.ExtendedTextMessage{
 			Text: &text,
 		},
 	}
@@ -239,8 +239,8 @@ func (w *whatsApp) SendAudioMessage(instance *Instance, jid JID, audioURL *datau
 	if err != nil {
 		return MessageResponse{}, err
 	}
-	message := &waProto.Message{
-		AudioMessage: &waProto.AudioMessage{
+	message := &waE2E.Message{
+		AudioMessage: &waE2E.AudioMessage{
 			PTT:           proto.Bool(true),
 			URL:           proto.String(uploaded.URL),
 			DirectPath:    proto.String(uploaded.DirectPath),
@@ -259,8 +259,8 @@ func (w *whatsApp) SendImageMessage(instance *Instance, jid JID, imageURL *datau
 	if err != nil {
 		return MessageResponse{}, err
 	}
-	message := &waProto.Message{
-		ImageMessage: &waProto.ImageMessage{
+	message := &waE2E.Message{
+		ImageMessage: &waE2E.ImageMessage{
 			URL:           proto.String(uploaded.URL),
 			DirectPath:    proto.String(uploaded.DirectPath),
 			MediaKey:      uploaded.MediaKey,
@@ -280,8 +280,8 @@ func (w *whatsApp) SendDocumentMessage(
 		return MessageResponse{}, err
 	}
 
-	message := &waProto.Message{
-		DocumentMessage: &waProto.DocumentMessage{
+	message := &waE2E.Message{
+		DocumentMessage: &waE2E.DocumentMessage{
 			URL:           proto.String(uploaded.URL),
 			FileName:      &filename,
 			DirectPath:    proto.String(uploaded.DirectPath),
@@ -312,7 +312,7 @@ func (w *whatsApp) IsOnWhatsApp(instance *Instance, phones []string) ([]IsOnWhat
 	return data, nil
 }
 
-func (w *whatsApp) sendMessage(instance *Instance, jid JID, message *waProto.Message) (MessageResponse, error) {
+func (w *whatsApp) sendMessage(instance *Instance, jid JID, message *waE2E.Message) (MessageResponse, error) {
 	resp, err := instance.Client.SendMessage(context.Background(), jid, message)
 	if err != nil {
 		return MessageResponse{}, err
@@ -426,7 +426,7 @@ func (w *whatsApp) uploadMedia(instance *Instance, media *dataurl.DataURL, media
 	}, nil
 }
 
-func (w *whatsApp) downloadMedia(instance *Instance, message *waProto.Message) (*DownloadResponse, error) {
+func (w *whatsApp) downloadMedia(instance *Instance, message *waE2E.Message) (*DownloadResponse, error) {
 	document := message.GetDocumentMessage()
 	if document != nil {
 		data, err := instance.Client.Download(context.Background(), document)
@@ -500,7 +500,7 @@ func (w *whatsApp) downloadMedia(instance *Instance, message *waProto.Message) (
 	return nil, nil
 }
 
-func (w *whatsApp) getTextMessage(message *waProto.Message) string {
+func (w *whatsApp) getTextMessage(message *waE2E.Message) string {
 	extendedTextMessage := message.GetExtendedTextMessage()
 	if extendedTextMessage != nil {
 		return *extendedTextMessage.Text

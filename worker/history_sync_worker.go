@@ -11,7 +11,7 @@ import (
 	"zapmeow/pkg/whatsapp"
 	"zapmeow/pkg/zapmeow"
 
-	waProto "go.mau.fi/whatsmeow/binary/proto"
+	waHistorySync "go.mau.fi/whatsmeow/proto/waHistorySync"
 	"go.mau.fi/whatsmeow/types"
 	"go.mau.fi/whatsmeow/types/events"
 	"google.golang.org/protobuf/proto"
@@ -108,15 +108,15 @@ func (q *historySyncWorker) processHistorySync(queue queue.HistorySyncQueue) err
 	return nil
 }
 
-func (q *historySyncWorker) parseHistorySync(history []byte) (*waProto.HistorySync, error) {
-	var data waProto.HistorySync
+func (q *historySyncWorker) parseHistorySync(history []byte) (*waHistorySync.HistorySync, error) {
+	var data waHistorySync.HistorySync
 	if err := proto.Unmarshal(history, &data); err != nil {
 		return nil, err
 	}
 	return &data, nil
 }
 
-func (q *historySyncWorker) processMessages(evt *waProto.HistorySync, account *model.Account, instance *whatsapp.Instance) ([]model.Message, error) {
+func (q *historySyncWorker) processMessages(evt *waHistorySync.HistorySync, account *model.Account, instance *whatsapp.Instance) ([]model.Message, error) {
 	var messages []model.Message
 
 	for _, conv := range evt.GetConversations() {
@@ -132,7 +132,7 @@ func (q *historySyncWorker) processMessages(evt *waProto.HistorySync, account *m
 		}
 
 		historySyncMsgs := conv.GetMessages()
-		if historySyncMsgs == nil || len(historySyncMsgs) == 0 {
+		if len(historySyncMsgs) == 0 {
 			continue
 		}
 
@@ -165,7 +165,7 @@ func (q *historySyncWorker) processMessages(evt *waProto.HistorySync, account *m
 	return messages, nil
 }
 
-func (q *historySyncWorker) processConversation(conv *waProto.Conversation, chatJID types.JID, instance *whatsapp.Instance) ([]*events.Message, error) {
+func (q *historySyncWorker) processConversation(conv *waHistorySync.Conversation, chatJID types.JID, instance *whatsapp.Instance) ([]*events.Message, error) {
 	var eventsMessage []*events.Message
 	for _, msg := range conv.GetMessages() {
 		parsedMessage, err := instance.Client.ParseWebMessage(chatJID, msg.GetMessage())

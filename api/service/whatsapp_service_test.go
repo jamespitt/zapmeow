@@ -14,7 +14,7 @@ import (
 	"zapmeow/pkg/zapmeow"
 
 	"github.com/vincent-petithory/dataurl"
-	waProto "go.mau.fi/whatsmeow/binary/proto"
+	waE2E "go.mau.fi/whatsmeow/proto/waE2E"
 	"go.mau.fi/whatsmeow/types"
 	"go.mau.fi/whatsmeow/types/events"
 	"google.golang.org/protobuf/proto"
@@ -259,7 +259,7 @@ chat_triggers:
 					info := types.MessageInfo{MessageSource: ms, ID: "msg1", Timestamp: time.Now()}
 					return info
 				}(),
-				Message: &waProto.Message{Conversation: proto.String("Hello trigger")},
+				Message: &waE2E.Message{Conversation: proto.String("Hello trigger")},
 			},
 			expectScriptRun:  true,
 			expectedOutput: "triggered_chat Hello trigger",
@@ -277,7 +277,7 @@ chat_triggers:
 					info := types.MessageInfo{MessageSource: ms, ID: "msg2", Timestamp: time.Now()}
 					return info
 				}(),
-				Message: &waProto.Message{Conversation: proto.String("Hello normal")},
+				Message: &waE2E.Message{Conversation: proto.String("Hello normal")},
 			},
 			expectScriptRun: false,
 			cleanupOutputFile: true,
@@ -294,7 +294,7 @@ chat_triggers:
 					info := types.MessageInfo{MessageSource: ms, ID: "msg3", Timestamp: time.Now()}
 					return info
 				}(),
-				Message: &waProto.Message{AudioMessage: &waProto.AudioMessage{Mimetype: proto.String("audio/ogg")} },
+				Message: &waE2E.Message{AudioMessage: &waE2E.AudioMessage{Mimetype: proto.String("audio/ogg")} },
 			},
 			expectScriptRun: false,
 			cleanupOutputFile: true,
@@ -311,7 +311,7 @@ chat_triggers:
 					info := types.MessageInfo{MessageSource: ms, ID: "msg4", Timestamp: time.Now()}
 					return info
 				}(),
-				Message: &waProto.Message{Conversation: proto.String("Hello broken trigger")},
+				Message: &waE2E.Message{Conversation: proto.String("Hello broken trigger")},
 			},
 			expectScriptRun: false,
 			expectErrorLog:  true,
@@ -330,7 +330,7 @@ chat_triggers:
 					info := types.MessageInfo{MessageSource: ms, ID: "msg5", Timestamp: time.Now()}
 					return info
 				}(),
-				Message: &waProto.Message{Conversation: proto.String("Hello from me")},
+				Message: &waE2E.Message{Conversation: proto.String("Hello from me")},
 			},
 			expectScriptRun:   false, 
 			cleanupOutputFile: true,
@@ -348,7 +348,7 @@ chat_triggers:
 					info := types.MessageInfo{MessageSource: ms, ID: "msg6", Timestamp: time.Now()}
 					return info
 				}(),
-				Message: &waProto.Message{Conversation: proto.String("Hello from globally excluded JID")},
+				Message: &waE2E.Message{Conversation: proto.String("Hello from globally excluded JID")},
 			},
 			expectScriptRun:   false,
 			cleanupOutputFile: true,
@@ -366,7 +366,7 @@ chat_triggers:
 					info := types.MessageInfo{MessageSource: ms, ID: "msg8", Timestamp: time.Now()}
 					return info
 				}(),
-				Message: &waProto.Message{Conversation: proto.String("Hello from another globally excluded JID")},
+				Message: &waE2E.Message{Conversation: proto.String("Hello from another globally excluded JID")},
 			},
 			expectScriptRun:   false,
 			cleanupOutputFile: true,
@@ -384,7 +384,7 @@ chat_triggers:
 					info := types.MessageInfo{MessageSource: ms, ID: "msg7", Timestamp: time.Now()}
 					return info
 				}(),
-				Message: &waProto.Message{Conversation: proto.String("Hello from allowed JID")},
+				Message: &waE2E.Message{Conversation: proto.String("Hello from allowed JID")},
 			},
 			expectScriptRun:   true,
 			expectedOutput:  "triggered_chat Hello from allowed JID",
@@ -471,8 +471,8 @@ func TestHandleMessage_AudioEnqueuesTranscriptionJob(t *testing.T) {
 			}
 			return types.MessageInfo{MessageSource: ms, ID: "audio_msg_1", Timestamp: time.Now()}
 		}(),
-		Message: &waProto.Message{
-			AudioMessage: &waProto.AudioMessage{Mimetype: proto.String("audio/ogg")},
+		Message: &waE2E.Message{
+			AudioMessage: &waE2E.AudioMessage{Mimetype: proto.String("audio/ogg")},
 		},
 	}
 
@@ -528,7 +528,7 @@ func TestHandleMessage_TextDoesNotEnqueueTranscription(t *testing.T) {
 			}
 			return types.MessageInfo{MessageSource: ms, ID: "text_msg_1", Timestamp: time.Now()}
 		}(),
-		Message: &waProto.Message{Conversation: proto.String("hello")},
+		Message: &waE2E.Message{Conversation: proto.String("hello")},
 	}
 
 	svc.handleMessage("inst_text", textEvent)
