@@ -20,6 +20,24 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
+// mockQueue implements pkg/queue.Queue in-memory.
+type mockQueue struct {
+	items []struct {
+		Name string
+		Data []byte
+	}
+}
+
+func (m *mockQueue) Enqueue(name string, data []byte) error {
+	m.items = append(m.items, struct {
+		Name string
+		Data []byte
+	}{name, data})
+	return nil
+}
+
+func (m *mockQueue) Dequeue(_ string) ([]byte, error) { return nil, nil }
+
 // --- Mocks ---
 
 // mockMessageService implements MessageService for testing
@@ -408,6 +426,115 @@ chat_triggers:
 				}
 			}
 		})
+	}
+}
+
+func TestHandleMessage_AudioEnqueuesTranscriptionJob(t *testing.T) {
+	os.Setenv("STORAGE_PATH", "/tmp/zapmeow_test_storage")
+	os.Setenv("WEBHOOK_URL", "")
+	os.Setenv("DATABASE_PATH", "/tmp/zapmeow_test_db.sqlite")
+	os.Setenv("REDIS_ADDR", "localhost:6379")
+	os.Setenv("REDIS_PASSWORD", "")
+	os.Setenv("PORT", "8081")
+	os.Setenv("HISTORY_SYNC", "false")
+	os.Setenv("MAX_MESSAGE_SYNC", "5")
+	os.Setenv("ENVIRONMENT", "development")
+
+	wd, _ := os.Getwd()
+	dummyConfigDir := filepath.Join(wd, "config")
+	os.MkdirAll(dummyConfigDir, 0755)
+	os.WriteFile(filepath.Join(dummyConfigDir, "chat_triggers.yaml"), []byte("chat_triggers: []\n"), 0644)
+	defer os.RemoveAll(dummyConfigDir)
+
+	logger.Init()
+
+	mq := &mockQueue{}
+	appInstances := new(sync.Map)
+	appInstances.Store("inst_audio", &whatsapp.Instance{ID: "inst_audio"})
+
+	app := &zapmeow.ZapMeow{
+		Config: config.Config{
+			StoragePath:            "/tmp/zapmeow_test_storage",
+			TranscriptionQueueName: "transcription",
+		},
+		Instances: appInstances,
+		Queue:     mq,
+	}
+
+	svc := NewWhatsAppService(app, &mockMessageService{}, &mockAccountService{}, &mockGroupService{}, &mockWhatsApp{})
+
+	audioEvent := &events.Message{
+		Info: func() types.MessageInfo {
+			ms := types.MessageSource{
+				Chat:   types.NewJID("chat_1", types.DefaultUserServer),
+				Sender: types.NewJID("sender_1", types.DefaultUserServer),
+			}
+			return types.MessageInfo{MessageSource: ms, ID: "audio_msg_1", Timestamp: time.Now()}
+		}(),
+		Message: &waProto.Message{
+			AudioMessage: &waProto.AudioMessage{Mimetype: proto.String("audio/ogg")},
+		},
+	}
+
+	svc.handleMessage("inst_audio", audioEvent)
+
+	if len(mq.items) != 1 {
+		t.Fatalf("expected 1 item enqueued, got %d", len(mq.items))
+	}
+	if mq.items[0].Name != "transcription" {
+		t.Errorf("queue name = %q, want \"transcription\"", mq.items[0].Name)
+	}
+}
+
+func TestHandleMessage_TextDoesNotEnqueueTranscription(t *testing.T) {
+	os.Setenv("STORAGE_PATH", "/tmp/zapmeow_test_storage")
+	os.Setenv("WEBHOOK_URL", "")
+	os.Setenv("DATABASE_PATH", "/tmp/zapmeow_test_db.sqlite")
+	os.Setenv("REDIS_ADDR", "localhost:6379")
+	os.Setenv("REDIS_PASSWORD", "")
+	os.Setenv("PORT", "8081")
+	os.Setenv("HISTORY_SYNC", "false")
+	os.Setenv("MAX_MESSAGE_SYNC", "5")
+	os.Setenv("ENVIRONMENT", "development")
+
+	wd, _ := os.Getwd()
+	dummyConfigDir := filepath.Join(wd, "config")
+	os.MkdirAll(dummyConfigDir, 0755)
+	os.WriteFile(filepath.Join(dummyConfigDir, "chat_triggers.yaml"), []byte("chat_triggers: []\n"), 0644)
+	defer os.RemoveAll(dummyConfigDir)
+
+	logger.Init()
+
+	mq := &mockQueue{}
+	appInstances := new(sync.Map)
+	appInstances.Store("inst_text", &whatsapp.Instance{ID: "inst_text"})
+
+	app := &zapmeow.ZapMeow{
+		Config: config.Config{
+			StoragePath:            "/tmp/zapmeow_test_storage",
+			TranscriptionQueueName: "transcription",
+		},
+		Instances: appInstances,
+		Queue:     mq,
+	}
+
+	svc := NewWhatsAppService(app, &mockMessageService{}, &mockAccountService{}, &mockGroupService{}, &mockWhatsApp{})
+
+	textEvent := &events.Message{
+		Info: func() types.MessageInfo {
+			ms := types.MessageSource{
+				Chat:   types.NewJID("chat_2", types.DefaultUserServer),
+				Sender: types.NewJID("sender_2", types.DefaultUserServer),
+			}
+			return types.MessageInfo{MessageSource: ms, ID: "text_msg_1", Timestamp: time.Now()}
+		}(),
+		Message: &waProto.Message{Conversation: proto.String("hello")},
+	}
+
+	svc.handleMessage("inst_text", textEvent)
+
+	if len(mq.items) != 0 {
+		t.Errorf("expected 0 items enqueued for text message, got %d", len(mq.items))
 	}
 }
 

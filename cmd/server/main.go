@@ -51,6 +51,7 @@ func main() {
 	err := database.RunMigrate(
 		&model.Account{},
 		&model.Message{},
+		&model.Transcription{},
 	)
 	if err != nil {
 		logger.Fatal("Error when running gorm automigrate. ", err)
@@ -69,9 +70,11 @@ func main() {
 	messageRepo := repository.NewMessageRepository(app.Database)
 	accountRepo := repository.NewAccountRepository(app.Database)
 	groupRepo := repository.NewGroupRepository(app.Database)
+	transcriptionRepo := repository.NewTranscriptionRepository(app.Database)
 
 	// service
 	messageService := service.NewMessageService(messageRepo)
+	transcriptionService := service.NewTranscriptionService(transcriptionRepo)
 	accountService := service.NewAccountService(accountRepo, messageService)
 	groupService := service.NewGroupService(groupRepo)
 	whatsAppService := service.NewWhatsAppService(
@@ -83,6 +86,8 @@ func main() {
 	)
 
 	// workers
+	transcriptionWorker := worker.NewTranscriptionWorker(app, transcriptionService)
+
 	historySyncWorker := worker.NewHistorySyncWorker(
 		app,
 		messageService,
@@ -122,6 +127,9 @@ func main() {
 	if cfg.HistorySync {
 		go historySyncWorker.ProcessQueue()
 	}
+
+	app.Wg.Add(1)
+	go transcriptionWorker.ProcessQueue()
 
 	<-*app.StopCh
 	app.Wg.Wait()

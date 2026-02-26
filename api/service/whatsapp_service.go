@@ -433,6 +433,17 @@ func (w *whatsAppService) handleMessage(instanceId string, evt *events.Message) 
 		message.MediaType = parsedEventMessage.MediaType.String()
 		message.Mimetype = mimetype
 		message.MediaPath = path
+
+		if (message.MediaType == "audio" || message.MediaType == "ptt") && w.app.Queue != nil {
+			tq := queue.NewTranscriptionQueue(w.app)
+			if enqueueErr := tq.Enqueue(queue.TranscriptionQueueData{
+				MessageID:  parsedEventMessage.MessageID,
+				InstanceID: instanceId,
+				MediaPath:  path,
+			}); enqueueErr != nil {
+				logger.Error("Failed to enqueue transcription job. ", enqueueErr)
+			}
+		}
 	}
 
 	// Check for text message triggers

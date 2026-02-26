@@ -28,9 +28,12 @@ type Config struct {
 	WebhookURLs        []string
 	ExcludedSenderJIDs []string
 	ChatTriggers       []ChatTriggerConfig
-	RootDir            string
-	StoragePath        string
-	HistorySyncQueueName string
+	RootDir                string
+	StoragePath            string
+	HistorySyncQueueName   string
+	WhisperCLIPath         string
+	WhisperModelPath       string
+	TranscriptionQueueName string
 }
 
 type ChatTriggerConfig struct {
@@ -56,6 +59,12 @@ func Load() Config {
 	portEnv := os.Getenv("PORT")
 	historySyncEnv := os.Getenv("HISTORY_SYNC")
 	maxMessageSyncEnv := os.Getenv("MAX_MESSAGE_SYNC")
+	whisperCLIPathEnv := os.Getenv("WHISPER_CLI_PATH")
+	whisperModelPathEnv := os.Getenv("WHISPER_MODEL_PATH")
+	transcriptionQueueNameEnv := os.Getenv("TRANSCRIPTION_QUEUE_NAME")
+	if transcriptionQueueNameEnv == "" {
+		transcriptionQueueNameEnv = "transcription"
+	}
 
 	usr, err := user.Current()
 	if err != nil {
@@ -117,8 +126,11 @@ func Load() Config {
 		WebhookURLs:        webhookURLs,
 		ExcludedSenderJIDs: fullChatConfig.ExcludedJIDs,
 		ChatTriggers:       fullChatConfig.Triggers,
-		RootDir:            ".",
-		StoragePath:        storagePathEnv,
+		RootDir:                ".",
+		StoragePath:            storagePathEnv,
+		WhisperCLIPath:         whisperCLIPathEnv,
+		WhisperModelPath:       whisperModelPathEnv,
+		TranscriptionQueueName: transcriptionQueueNameEnv,
 	}
 }
 

@@ -36,7 +36,7 @@ func (d *database) RunMigrate(dst ...interface{}) error {
 	modelsToMigrate := []interface{}{
 		&model.Account{},
 		&model.Message{},
-		// &model.Transcription{},
+		&model.Transcription{},
 		&model.Group{},
 	}
 	// Append any additional models passed in dst
