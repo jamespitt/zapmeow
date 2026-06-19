@@ -227,9 +227,7 @@ func (w *whatsApp) InitInstance(instance *Instance, qrcodeHandler func(evt strin
 
 func (w *whatsApp) SendTextMessage(instance *Instance, jid JID, text string) (MessageResponse, error) {
 	message := &waE2E.Message{
-		ExtendedTextMessage: &waE2E.ExtendedTextMessage{
-			Text: &text,
-		},
+		Conversation: &text,
 	}
 	return w.sendMessage(instance, jid, message)
 }
