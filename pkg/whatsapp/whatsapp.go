@@ -140,6 +140,19 @@ func NewWhatsApp(databasePath string) *whatsApp {
 	if err != nil {
 		logger.Fatal(err)
 	}
+
+	// Get and set the latest WhatsApp version to prevent "Client outdated (405)" errors
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	latestVer, err := whatsmeow.GetLatestVersion(ctx, nil)
+	if err != nil {
+		logger.Error("Failed to get latest WhatsApp version: ", err)
+	} else {
+		store.SetWAVersion(*latestVer)
+		logger.Info(fmt.Sprintf("Set WhatsApp version to: %v", latestVer))
+	}
+
 	return &whatsApp{container: container}
 }
 
