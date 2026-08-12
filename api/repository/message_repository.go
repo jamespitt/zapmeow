@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"time"
 	"zapmeow/api/model"
 	"zapmeow/pkg/database"
 )
@@ -9,6 +10,7 @@ type MessageRepository interface {
 	CreateMessage(message *model.Message) error
 	CreateMessages(messages *[]model.Message) error
 	GetChatMessages(instanceID string, chatJID string) (*[]model.Message, error)
+	GetMessagesByInstanceID(instanceID string, limit int, before *time.Time) (*[]model.Message, error)
 	GetMessageByMessageID(instanceID string, messageID string) (*model.Message, error)
 	CountChatMessages(instanceID string, chatJID string) (int64, error)
 	DeleteMessagesByInstanceID(instanceID string) error
@@ -49,6 +51,21 @@ func (repo *messageRepository) GetMessageByMessageID(instanceID string, messageI
 func (repo *messageRepository) GetChatMessages(instanceID string, chatJID string) (*[]model.Message, error) {
 	var messages []model.Message
 	if result := repo.database.Client().Where("instance_id = ? AND chat_jid = ?", instanceID, chatJID).Order("timestamp DESC").Find(&messages); result.Error != nil {
+		return nil, result.Error
+	}
+	return &messages, nil
+}
+
+// GetMessagesByInstanceID returns messages across all chats for the instance,
+// newest first. If before is non-nil, only messages strictly older than it
+// are returned (for cursor-based pagination).
+func (repo *messageRepository) GetMessagesByInstanceID(instanceID string, limit int, before *time.Time) (*[]model.Message, error) {
+	var messages []model.Message
+	query := repo.database.Client().Where("instance_id = ?", instanceID)
+	if before != nil {
+		query = query.Where("timestamp < ?", *before)
+	}
+	if result := query.Order("timestamp DESC").Limit(limit).Find(&messages); result.Error != nil {
 		return nil, result.Error
 	}
 	return &messages, nil

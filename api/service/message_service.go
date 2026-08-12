@@ -1,6 +1,7 @@
 package service
 
 import (
+	"time"
 	"zapmeow/api/model"
 	"zapmeow/api/repository"
 )
@@ -9,6 +10,7 @@ type MessageService interface {
 	CreateMessage(message *model.Message) error
 	CreateMessages(messages *[]model.Message) error
 	GetChatMessages(instanceID string, chatJID string) (*[]model.Message, error)
+	GetMessagesByInstanceID(instanceID string, limit int, before *time.Time) (*[]model.Message, error)
 	GetMessageByMessageID(instanceID string, messageID string) (*model.Message, error)
 	CountChatMessages(instanceID string, chatJID string) (int64, error)
 	DeleteMessagesByInstanceID(instanceID string) error
@@ -38,6 +40,10 @@ func (m *messageService) GetMessageByMessageID(instanceID string, messageID stri
 
 func (m *messageService) GetChatMessages(instanceID string, chatJID string) (*[]model.Message, error) {
 	return m.messageRep.GetChatMessages(instanceID, chatJID)
+}
+
+func (m *messageService) GetMessagesByInstanceID(instanceID string, limit int, before *time.Time) (*[]model.Message, error) {
+	return m.messageRep.GetMessagesByInstanceID(instanceID, limit, before)
 }
 
 func (m *messageService) CountChatMessages(instanceID string, chatJID string) (int64, error) {

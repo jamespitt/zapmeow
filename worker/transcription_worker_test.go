@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"testing"
+	"time"
 	"zapmeow/api/model"
 	"zapmeow/api/queue"
 	"zapmeow/api/service"
@@ -79,6 +80,9 @@ type stubMessageService struct{}
 func (s *stubMessageService) CreateMessage(_ *model.Message) error                            { return nil }
 func (s *stubMessageService) CreateMessages(_ *[]model.Message) error                         { return nil }
 func (s *stubMessageService) GetChatMessages(_, _ string) (*[]model.Message, error)           { return nil, nil }
+func (s *stubMessageService) GetMessagesByInstanceID(_ string, _ int, _ *time.Time) (*[]model.Message, error) {
+	return nil, nil
+}
 func (s *stubMessageService) GetMessageByMessageID(_, _ string) (*model.Message, error)       { return nil, nil }
 func (s *stubMessageService) CountChatMessages(_, _ string) (int64, error)                    { return 0, nil }
 func (s *stubMessageService) DeleteMessagesByInstanceID(_ string) error                       { return nil }

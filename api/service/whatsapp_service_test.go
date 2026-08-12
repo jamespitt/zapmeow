@@ -54,7 +54,10 @@ func (m *mockMessageService) CreateMessage(message *model.Message) error {
 func (m *mockMessageService) CreateMessages(messages *[]model.Message) error { return nil } 
 func (m *mockMessageService) GetChatMessages(instanceID string, chatJID string) (*[]model.Message, error) {
 	return nil, nil
-} 
+}
+func (m *mockMessageService) GetMessagesByInstanceID(instanceID string, limit int, before *time.Time) (*[]model.Message, error) {
+	return nil, nil
+}
 func (m *mockMessageService) CountChatMessages(instanceID string, chatJID string) (int64, error) {
 	return 0, nil
 } 
