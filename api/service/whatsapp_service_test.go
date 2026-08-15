@@ -55,8 +55,11 @@ func (m *mockMessageService) CreateMessages(messages *[]model.Message) error { r
 func (m *mockMessageService) GetChatMessages(instanceID string, chatJID string) (*[]model.Message, error) {
 	return nil, nil
 }
-func (m *mockMessageService) GetMessagesByInstanceID(instanceID string, limit int, before *time.Time) (*[]model.Message, error) {
+func (m *mockMessageService) GetMessagesByInstanceID(instanceID string, chatJID string, limit int, before *time.Time) (*[]model.Message, error) {
 	return nil, nil
+}
+func (m *mockMessageService) GetChatsByInstanceID(instanceID string) (*[]model.Message, map[string]int64, error) {
+	return nil, nil, nil
 }
 func (m *mockMessageService) CountChatMessages(instanceID string, chatJID string) (int64, error) {
 	return 0, nil
@@ -93,7 +96,10 @@ type mockGroupService struct{}
 
 func (m *mockGroupService) CreateOrUpdateGroup(instanceID string, groupInfo *model.GroupInfo) error {
 	return nil
-} 
+}
+func (m *mockGroupService) GetGroupByJID(jid string) (*model.Group, error) {
+	return nil, nil
+}
 
 // mockWhatsApp implements whatsapp.WhatsApp for testing
 type mockWhatsApp struct{}

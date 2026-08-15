@@ -39,9 +39,10 @@ func NewGetAllMessagesHandler(
 // Get All WhatsApp Messages
 //
 //	@Summary		Get all WhatsApp messages for an instance
-//	@Description	Returns messages across all chats for the instance, newest first, paginated.
+//	@Description	Returns messages for the instance, newest first, paginated. Pass chat to scope to a single chat JID.
 //	@Tags			WhatsApp Chat
 //	@Param			instanceId	path	string	true	"Instance ID"
+//	@Param			chat		query	string	false	"Chat JID to filter to a single chat; omit for all chats"
 //	@Param			limit		query	int		false	"Max messages to return (default 50, max 200)"
 //	@Param			before		query	int		false	"Unix timestamp (seconds); only return messages strictly before this time"
 //	@Produce		json
@@ -59,6 +60,8 @@ func (h *getAllMessagesHandler) Handler(c *gin.Context) {
 		response.ErrorResponse(c, http.StatusUnauthorized, "unautenticated")
 		return
 	}
+
+	chatJID := c.Query("chat")
 
 	limit := defaultAllMessagesLimit
 	if raw := c.Query("limit"); raw != "" {
@@ -85,7 +88,7 @@ func (h *getAllMessagesHandler) Handler(c *gin.Context) {
 	}
 
 	// Fetch one extra message to detect whether another page exists.
-	messages, err := h.messageService.GetMessagesByInstanceID(instanceID, limit+1, before)
+	messages, err := h.messageService.GetMessagesByInstanceID(instanceID, chatJID, limit+1, before)
 	if err != nil {
 		response.ErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

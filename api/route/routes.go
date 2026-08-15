@@ -65,6 +65,11 @@ func SetupRouter(
 		whatsAppService,
 		messageService,
 	)
+	getChatsHandler := handler.NewGetChatsHandler(
+		whatsAppService,
+		messageService,
+		groupService,
+	)
 	sendTextMessageHandler := handler.NewSendTextMessageHandler(
 		whatsAppService,
 		messageService,
@@ -105,6 +110,7 @@ func SetupRouter(
 	group.POST("/:instanceId/check/phones", checkPhonesHandler.Handler)
 	group.POST("/:instanceId/chat/messages", getMessagesHandler.Handler)
 	group.GET("/:instanceId/chat/all-messages", getAllMessagesHandler.Handler)
+	group.GET("/:instanceId/chats", getChatsHandler.Handler)
 	group.POST("/:instanceId/chat/send/text", sendTextMessageHandler.Handler)
 	group.POST("/:instanceId/chat/send/image", sendImageMessageHandler.Handler)
 	group.POST("/:instanceId/chat/send/audio", sendAudioMessageHandler.Handler)

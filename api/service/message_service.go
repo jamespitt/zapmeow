@@ -10,7 +10,8 @@ type MessageService interface {
 	CreateMessage(message *model.Message) error
 	CreateMessages(messages *[]model.Message) error
 	GetChatMessages(instanceID string, chatJID string) (*[]model.Message, error)
-	GetMessagesByInstanceID(instanceID string, limit int, before *time.Time) (*[]model.Message, error)
+	GetMessagesByInstanceID(instanceID string, chatJID string, limit int, before *time.Time) (*[]model.Message, error)
+	GetChatsByInstanceID(instanceID string) (*[]model.Message, map[string]int64, error)
 	GetMessageByMessageID(instanceID string, messageID string) (*model.Message, error)
 	CountChatMessages(instanceID string, chatJID string) (int64, error)
 	DeleteMessagesByInstanceID(instanceID string) error
@@ -42,8 +43,12 @@ func (m *messageService) GetChatMessages(instanceID string, chatJID string) (*[]
 	return m.messageRep.GetChatMessages(instanceID, chatJID)
 }
 
-func (m *messageService) GetMessagesByInstanceID(instanceID string, limit int, before *time.Time) (*[]model.Message, error) {
-	return m.messageRep.GetMessagesByInstanceID(instanceID, limit, before)
+func (m *messageService) GetMessagesByInstanceID(instanceID string, chatJID string, limit int, before *time.Time) (*[]model.Message, error) {
+	return m.messageRep.GetMessagesByInstanceID(instanceID, chatJID, limit, before)
+}
+
+func (m *messageService) GetChatsByInstanceID(instanceID string) (*[]model.Message, map[string]int64, error) {
+	return m.messageRep.GetChatsByInstanceID(instanceID)
 }
 
 func (m *messageService) CountChatMessages(instanceID string, chatJID string) (int64, error) {

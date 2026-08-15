@@ -8,6 +8,7 @@ import (
 
 type GroupService interface {
 	CreateOrUpdateGroup(instanceID string, groupInfo *model.GroupInfo) error
+	GetGroupByJID(jid string) (*model.Group, error)
 }
 
 type groupService struct {
@@ -47,4 +48,8 @@ func (s *groupService) CreateOrUpdateGroup(instanceID string, groupInfo *model.G
 
 	// Use the repository to save the group, which will handle both create and update.
 	return s.groupRepo.SaveGroup(group)
+}
+
+func (s *groupService) GetGroupByJID(jid string) (*model.Group, error) {
+	return s.groupRepo.GetGroupByJID(jid)
 }
