@@ -2,13 +2,272 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ZapMeow QR Code</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZapMeow - WhatsApp Pairing</title>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --primary: #25D366;
+            --primary-dark: #128C7E;
+            --bg: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #111b21;
+            --text-sub: #667781;
+            --danger: #ea4335;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #111b21;
+                --card-bg: #202c33;
+                --text-main: #e9edef;
+                --text-sub: #8696a0;
+            }
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 420px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        h1 {
+            font-size: 1.5rem;
+            margin: 0 0 8px 0;
+            color: var(--text-main);
+        }
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            margin-bottom: 24px;
+        }
+        .qrcode-container {
+            background: #ffffff;
+            padding: 16px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            min-width: 256px;
+            min-height: 256px;
+        }
+        .qrcode-container img, .qrcode-container canvas {
+            display: block;
+            margin: 0 auto;
+        }
+        .instructions {
+            text-align: left;
+            background: rgba(0,0,0,0.03);
+            border-radius: 8px;
+            padding: 14px 18px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: var(--text-sub);
+            margin-bottom: 20px;
+        }
+        @media (prefers-color-scheme: dark) {
+            .instructions {
+                background: rgba(255,255,255,0.05);
+            }
+        }
+        .instructions ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: rgba(37, 211, 102, 0.15);
+            color: var(--primary-dark);
+            margin-bottom: 16px;
+        }
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.7; }
+            50% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.7; }
+        }
+        .btn {
+            background-color: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.2s;
+        }
+        .btn:hover {
+            background-color: var(--primary-dark);
+        }
+        .connected-state {
+            display: none;
+            padding: 20px 0;
+        }
+        .connected-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background-color: rgba(37, 211, 102, 0.15);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 16px auto;
+        }
+        .error-message {
+            color: var(--danger);
+            font-size: 0.9rem;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
 </head>
 <body>
-    <div id="qrcode"></div>
+    <div class="card">
+        <h1>Link WhatsApp</h1>
+        <div class="subtitle" id="instance-title">Instance: Connecting...</div>
+
+        <div id="status-container" class="status-badge">
+            <span class="pulse-dot" id="status-dot"></span>
+            <span id="status-text">Waiting for scan</span>
+        </div>
+
+        <div id="unpaired-view">
+            <div class="qrcode-container" id="qrcode"></div>
+
+            <div class="instructions">
+                <ol>
+                    <li>Open <strong>WhatsApp</strong> on your phone</li>
+                    <li>Tap <strong>Settings</strong> &gt; <strong>Linked Devices</strong></li>
+                    <li>Tap <strong>Link a Device</strong> and scan this QR code</li>
+                </ol>
+            </div>
+        </div>
+
+        <div id="connected-view" class="connected-state">
+            <div class="connected-icon">✓</div>
+            <h2 style="margin: 0 0 8px 0; color: var(--primary);">Connected!</h2>
+            <p class="subtitle" style="margin-bottom: 0;">ZapMeow is paired and ready to receive messages.</p>
+        </div>
+
+        <div id="error-view" class="error-message"></div>
+        <div id="retry-container" style="display: none; margin-top: 16px;">
+            <button class="btn" onclick="location.reload()">Refresh &amp; Get New QR Code</button>
+        </div>
+    </div>
+
     <script type="text/javascript">
-        new QRCode(document.getElementById("qrcode"), "{{QR_CODE}}");
+        // Parse instance ID from URL path: /api/:instanceId/qrcode/page
+        const segments = window.location.pathname.split('/').filter(Boolean);
+        let instanceId = '3';
+        if (segments.length >= 2 && segments[0] === 'api') {
+            instanceId = segments[1];
+        }
+        document.getElementById('instance-title').textContent = 'Instance ID: ' + instanceId;
+
+        let currentCode = "{{QR_CODE}}";
+        let qrcodeObj = null;
+
+        function updateQRCode(code) {
+            if (!code || code === '{{' + 'QR_CODE}}') {
+                return;
+            }
+            if (code === currentCode && qrcodeObj) {
+                return;
+            }
+            currentCode = code;
+            const container = document.getElementById("qrcode");
+            container.innerHTML = "";
+            qrcodeObj = new QRCode(container, {
+                text: code,
+                width: 256,
+                height: 256,
+                correctLevel: QRCode.CorrectLevel.L
+            });
+        }
+
+        if (currentCode && currentCode !== '{{' + 'QR_CODE}}') {
+            updateQRCode(currentCode);
+        }
+
+        let isPolling = true;
+
+        async function pollStatus() {
+            if (!isPolling) return;
+            try {
+                // Check status
+                const statusRes = await fetch('/api/' + instanceId + '/status');
+                if (statusRes.ok) {
+                    const statusData = await statusRes.json();
+                    const status = (statusData.status || '').toUpperCase();
+
+                    if (status === 'CONNECTED') {
+                        isPolling = false;
+                        document.getElementById('unpaired-view').style.display = 'none';
+                        document.getElementById('connected-view').style.display = 'block';
+                        document.getElementById('status-container').style.display = 'none';
+                        document.getElementById('retry-container').style.display = 'none';
+                        return;
+                    } else if (status === 'TIMEOUT') {
+                        document.getElementById('status-text').textContent = 'Session Timed Out';
+                        document.getElementById('status-dot').style.backgroundColor = '#ea4335';
+                        document.getElementById('retry-container').style.display = 'block';
+                    } else {
+                        document.getElementById('status-text').textContent = 'Waiting for scan...';
+                        document.getElementById('status-dot').style.backgroundColor = '#25D366';
+                        document.getElementById('retry-container').style.display = 'none';
+                    }
+                }
+
+                // Check QR code
+                const qrRes = await fetch('/api/' + instanceId + '/qrcode');
+                if (qrRes.ok) {
+                    const qrData = await qrRes.json();
+                    if (qrData.qrcode) {
+                        updateQRCode(qrData.qrcode);
+                    }
+                }
+            } catch (err) {
+                console.error("Polling error:", err);
+            }
+
+            if (isPolling) {
+                setTimeout(pollStatus, 2500);
+            }
+        }
+
+        // Start polling immediately
+        pollStatus();
     </script>
 </body>
 </html>
