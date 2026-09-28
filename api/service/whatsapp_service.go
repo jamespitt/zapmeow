@@ -279,7 +279,7 @@ func (w *whatsAppService) gerOrCreateInstance(instanceID string) (*whatsapp.Inst
 		return nil, err
 	}
 
-	if account == nil || (account != nil && account.Status != "CONNECTED") {
+	if account == nil {
 		instance := w.whatsApp.CreateInstance(instanceID)
 
 		err := w.accountService.CreateAccount(&model.Account{
@@ -288,6 +288,11 @@ func (w *whatsAppService) gerOrCreateInstance(instanceID string) (*whatsapp.Inst
 		if err != nil {
 			return nil, err
 		}
+		return instance, nil
+	}
+
+	if account.Status != "CONNECTED" {
+		instance := w.whatsApp.CreateInstance(instanceID)
 		return instance, nil
 	}
 
