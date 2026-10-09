@@ -38,3 +38,4 @@ main
 server
 zapmeow
 *.oga
+.nfs*
