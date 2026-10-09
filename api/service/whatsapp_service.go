@@ -45,6 +45,7 @@ type WhatsAppService interface {
 	SendAudioMessage(instance *whatsapp.Instance, jid whatsapp.JID, audioURL *dataurl.DataURL, mimitype string) (whatsapp.MessageResponse, error)
 	SendDocumentMessage(instance *whatsapp.Instance, jid whatsapp.JID, documentURL *dataurl.DataURL, mimitype string, filename string) (whatsapp.MessageResponse, error)
 	SendImageMessage(instance *whatsapp.Instance, jid whatsapp.JID, imageURL *dataurl.DataURL, mimitype string) (whatsapp.MessageResponse, error)
+	SendPollMessage(instance *whatsapp.Instance, jid whatsapp.JID, name string, selectableOptionCount int, options []string) (whatsapp.MessageResponse, error)
 	GetContactInfo(instance *whatsapp.Instance, jid whatsapp.JID) (*whatsapp.ContactInfo, error)
 	GetGroupInfo(instance *whatsapp.Instance, groupID string) (*model.GroupInfo, error)
 	SyncGroups(instance *whatsapp.Instance) ([]*model.GroupInfo, error)
@@ -166,6 +167,16 @@ func (w *whatsAppService) SendImageMessage(
 	mimitype string,
 ) (whatsapp.MessageResponse, error) {
 	return w.whatsApp.SendImageMessage(instance, jid, imageURL, mimitype)
+}
+
+func (w *whatsAppService) SendPollMessage(
+	instance *whatsapp.Instance,
+	jid whatsapp.JID,
+	name string,
+	selectableOptionCount int,
+	options []string,
+) (whatsapp.MessageResponse, error) {
+	return w.whatsApp.SendPollMessage(instance, jid, name, selectableOptionCount, options)
 }
 
 func (w *whatsAppService) GetContactInfo(instance *whatsapp.Instance, jid whatsapp.JID) (*whatsapp.ContactInfo, error) {

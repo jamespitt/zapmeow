@@ -173,6 +173,47 @@
                 }
             }
         },
+        "/{instanceId}/chat/send/poll": {
+            "post": {
+                "description": "Sends a poll message on WhatsApp using the specified instance.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WhatsApp Chat"
+                ],
+                "summary": "Send Poll Message on WhatsApp",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Instance ID",
+                        "name": "instanceId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Poll message body",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.sendPollMessageBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Message Send Response",
+                        "schema": {
+                            "$ref": "#/definitions/handler.sendPollMessageResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/{instanceId}/check/phones": {
             "post": {
                 "description": "Verifies if the phone numbers in the provided list are registered WhatsApp users.",
@@ -504,6 +545,34 @@
             }
         },
         "handler.sendTextMessageResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "$ref": "#/definitions/response.Message"
+                }
+            }
+        },
+        "handler.sendPollMessageBody": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "options": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "selectable_option_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "handler.sendPollMessageResponse": {
             "type": "object",
             "properties": {
                 "message": {

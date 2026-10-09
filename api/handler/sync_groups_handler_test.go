@@ -53,6 +53,11 @@ func (m *MockWhatsAppService) SendImageMessage(instance *whatsapp.Instance, jid 
 	return args.Get(0).(whatsapp.MessageResponse), args.Error(1)
 }
 
+func (m *MockWhatsAppService) SendPollMessage(instance *whatsapp.Instance, jid whatsapp.JID, name string, selectableOptionCount int, options []string) (whatsapp.MessageResponse, error) {
+	args := m.Called(instance, jid, name, selectableOptionCount, options)
+	return args.Get(0).(whatsapp.MessageResponse), args.Error(1)
+}
+
 func (m *MockWhatsAppService) GetContactInfo(instance *whatsapp.Instance, jid whatsapp.JID) (*whatsapp.ContactInfo, error) {
 	args := m.Called(instance, jid)
 	return args.Get(0).(*whatsapp.ContactInfo), args.Error(1)

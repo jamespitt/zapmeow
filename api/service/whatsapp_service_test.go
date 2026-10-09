@@ -132,6 +132,9 @@ func (m *mockWhatsApp) SendAudioMessage(instance *whatsapp.Instance, jid types.J
 func (m *mockWhatsApp) SendDocumentMessage(instance *whatsapp.Instance, jid types.JID, documentURL *dataurl.DataURL, mimitype string, filename string) (whatsapp.MessageResponse, error) {
 	return whatsapp.MessageResponse{}, nil
 }
+func (m *mockWhatsApp) SendPollMessage(instance *whatsapp.Instance, jid whatsapp.JID, name string, selectableOptionCount int, options []string) (whatsapp.MessageResponse, error) {
+	return whatsapp.MessageResponse{}, nil
+}
 func (m *mockWhatsApp) GetContactInfo(instance *whatsapp.Instance, jid types.JID) (*whatsapp.ContactInfo, error) {
 	return nil, nil
 }

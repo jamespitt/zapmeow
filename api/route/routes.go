@@ -86,6 +86,10 @@ func SetupRouter(
 		whatsAppService,
 		messageService,
 	)
+	sendPollMessageHandler := handler.NewSendPollMessageHandler(
+		whatsAppService,
+		messageService,
+	)
 	getGroupInfoHandler := handler.NewGetGroupInfoHandler(
 		whatsAppService,
 	)
@@ -115,6 +119,7 @@ func SetupRouter(
 	group.POST("/:instanceId/chat/send/image", sendImageMessageHandler.Handler)
 	group.POST("/:instanceId/chat/send/audio", sendAudioMessageHandler.Handler)
 	group.POST("/:instanceId/chat/send/document", sendDocumentMessageHandler.Handler)
+	group.POST("/:instanceId/chat/send/poll", sendPollMessageHandler.Handler)
 	group.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	return router

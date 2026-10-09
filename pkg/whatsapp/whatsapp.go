@@ -116,6 +116,7 @@ type WhatsApp interface {
 	SendAudioMessage(instance *Instance, jid JID, audioURL *dataurl.DataURL, mimitype string) (MessageResponse, error)
 	SendImageMessage(instance *Instance, jid JID, imageURL *dataurl.DataURL, mimitype string) (MessageResponse, error)
 	SendDocumentMessage(instance *Instance, jid JID, documentURL *dataurl.DataURL, mimitype string, filename string) (MessageResponse, error)
+	SendPollMessage(instance *Instance, jid JID, name string, selectableOptionCount int, options []string) (MessageResponse, error)
 	GetContactInfo(instance *Instance, jid JID) (*ContactInfo, error)
 	GetGroupInfo(instance *Instance, groupID string) (*types.GroupInfo, error)
 	GetJoinedGroups(instance *Instance) ([]*types.GroupInfo, error)
@@ -305,6 +306,17 @@ func (w *whatsApp) SendDocumentMessage(
 			FileLength:    proto.Uint64(uint64(len(documentURL.Data))),
 		},
 	}
+	return w.sendMessage(instance, jid, message)
+}
+
+func (w *whatsApp) SendPollMessage(
+	instance *Instance,
+	jid JID,
+	name string,
+	selectableOptionCount int,
+	options []string,
+) (MessageResponse, error) {
+	message := instance.Client.BuildPollCreation(name, options, selectableOptionCount)
 	return w.sendMessage(instance, jid, message)
 }
 
@@ -514,9 +526,14 @@ func (w *whatsApp) downloadMedia(instance *Instance, message *waE2E.Message) (*D
 }
 
 func (w *whatsApp) getTextMessage(message *waE2E.Message) string {
-	extendedTextMessage := message.GetExtendedTextMessage()
-	if extendedTextMessage != nil {
+	if message == nil {
+		return ""
+	}
+	if extendedTextMessage := message.GetExtendedTextMessage(); extendedTextMessage != nil {
 		return *extendedTextMessage.Text
+	}
+	if pollCreation := message.GetPollCreationMessage(); pollCreation != nil {
+		return pollCreation.GetName()
 	}
 	return message.GetConversation()
 }

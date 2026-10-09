@@ -82,6 +82,24 @@ definitions:
       message:
         $ref: '#/definitions/response.Message'
     type: object
+  handler.sendPollMessageBody:
+    properties:
+      name:
+        type: string
+      options:
+        items:
+          type: string
+        type: array
+      phone:
+        type: string
+      selectable_option_count:
+        type: integer
+    type: object
+  handler.sendPollMessageResponse:
+    properties:
+      message:
+        $ref: '#/definitions/response.Message'
+    type: object
   response.Message:
     properties:
       body:
@@ -238,6 +256,33 @@ paths:
           schema:
             $ref: '#/definitions/handler.sendTextMessageResponse'
       summary: Send Text Message on WhatsApp
+      tags:
+      - WhatsApp Chat
+  /{instanceId}/chat/send/poll:
+    post:
+      consumes:
+      - application/json
+      description: Sends a poll message on WhatsApp using the specified instance.
+      parameters:
+      - description: Instance ID
+        in: path
+        name: instanceId
+        required: true
+        type: string
+      - description: Poll message body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/handler.sendPollMessageBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Message Send Response
+          schema:
+            $ref: '#/definitions/handler.sendPollMessageResponse'
+      summary: Send Poll Message on WhatsApp
       tags:
       - WhatsApp Chat
   /{instanceId}/check/phones:
